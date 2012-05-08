@@ -30,7 +30,7 @@ namespace TPS.Web.Controllers
             return View(namSearchModel);
         }
 
-        public ActionResult Details(string namNumber, string roomNumber, string vlan, string building, string department)
+        public ActionResult SearchResults(string namNumber, string roomNumber, string vlan, string building, string department)
         {
             var namSearchModel = Models.NamSearchModel.Create(Repository, namNumber, roomNumber, vlan, building, department);
 

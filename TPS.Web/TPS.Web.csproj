@@ -312,7 +312,7 @@
     <Content Include="Views\Shared\_Layout.Mobile.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\NamSearch\Details.cshtml" />
+    <Content Include="Views\NamSearch\SearchResults.cshtml" />
     <Content Include="Views\NamSearch\DisplayContact.cshtml" />
     <Content Include="Views\NamSearch\DisplayNam.cshtml" />
     <Content Include="Views\NamSearch\Index.cshtml" />
