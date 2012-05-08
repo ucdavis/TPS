@@ -12,11 +12,13 @@
     <ul data-role="listview">
         <li class="info"><strong>NAM Number: </strong><span>@(String.IsNullOrEmpty(@Model.NamNumber) ? String.Empty : Model.NamNumber)</span>
         </li>
-        <li class="info"><strong>Room: </strong><span>@(String.IsNullOrEmpty(@Model.Room) ? String.Empty : Model.Room)</span>
-        </li>
         <li class="info"><strong>Building: </strong><span>@(@Model.Building == null ? String.Empty : @Model.Building.Name)
         </span></li>
+        <li class="info"><strong>Room: </strong><span>@(String.IsNullOrEmpty(@Model.Room) ? String.Empty : Model.Room)</span>
+        </li>
         <li class="info"><strong>Department: </strong><span>@(@Model.Department == null ? String.Empty : Model.Department.Name)</span>
+        </li>
+        <li class="info"><strong>Billing Id: </strong><span>@(@Model.BillingId == null ? String.Empty : Model.BillingId.Name)</span>
         </li>
         <li class="info"><strong>Vlan: </strong><span>
             @if (@Model.Vlan != null)
@@ -29,6 +31,8 @@
 
             }
         </span></li>
+        <li class="info"><strong>Port Number: </strong><span>@(String.IsNullOrEmpty(@Model.PortNumber) ? String.Empty : Model.PortNumber)</span>
+        </li>
         <li class="info"><strong>Status: </strong><span>@(@Model.Status == null ? String.Empty : @Model.Status.Name)
         </span></li>
     </ul>

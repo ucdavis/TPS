@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NamSearch2.Helpers
+namespace TPS.Web.Helpers
 {
     public class PhoneFormatter : IFormatProvider, ICustomFormatter
     {

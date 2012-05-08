@@ -36,6 +36,12 @@
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\packages\DataAnnotationsExtensions.1.1.0.0\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\Bin\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\Bin\NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -51,6 +57,7 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Domain\Building.cs" />
     <Compile Include="Domain\College.cs" />
+    <Compile Include="Domain\BillingId.cs" />
     <Compile Include="Domain\DataNam.cs" />
     <Compile Include="Domain\Department.cs" />
     <Compile Include="Domain\Division.cs" />
@@ -60,6 +67,18 @@
     <Compile Include="Domain\TechContact.cs" />
     <Compile Include="Domain\Vlan.cs" />
     <Compile Include="Domain\VlanContact.cs" />
+    <Compile Include="Mappings\BuildingMap.cs" />
+    <Compile Include="Mappings\CollegeMap.cs" />
+    <Compile Include="Mappings\BillingIdMap.cs" />
+    <Compile Include="Mappings\DataNamMap.cs" />
+    <Compile Include="Mappings\DepartmentMap.cs" />
+    <Compile Include="Mappings\DivisionMap.cs" />
+    <Compile Include="Mappings\MaskMap.cs" />
+    <Compile Include="Mappings\StatusCodeMap.cs" />
+    <Compile Include="Mappings\SubnetMap.cs" />
+    <Compile Include="Mappings\TechContact.Map.cs" />
+    <Compile Include="Mappings\VlanContactMap.cs" />
+    <Compile Include="Mappings\VlanMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

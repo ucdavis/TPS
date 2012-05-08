@@ -16,7 +16,7 @@ namespace TPS.Core.Domain
 
         public virtual Department Department { get; set; }
 
-        public virtual string BillingId { get; set; }
+        public virtual BillingId BillingId { get; set; }
 
         public virtual Vlan Vlan { get; set; }
 

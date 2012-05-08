@@ -1,13 +1,11 @@
-﻿@using NamSearch2.Helpers
-@using TPS.Core.Domain
-@using TPS.Helpers
+﻿@using TPS.Web.Helpers
 @model TPS.Core.Domain.Vlan
 @{
     ViewBag.Title = "VLAN Contacts";
 
 }
 @section Header {
-    @Html.ActionLink("Back", "Index", "Home", null, new { data_icon = "arrow-l", data_rel = "back" })
+    @Html.ActionLink("Back", "Index", "NamSearch", null, new { data_icon = "arrow-l", data_rel = "back" })
     <h1>@ViewBag.Title</h1>
 }
 <h3>
