@@ -43,9 +43,23 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UCDArch">
+      <HintPath>..\Bin\UCDArch.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Domain\Building.cs" />
+    <Compile Include="Domain\College.cs" />
+    <Compile Include="Domain\DataNam.cs" />
+    <Compile Include="Domain\Department.cs" />
+    <Compile Include="Domain\Division.cs" />
+    <Compile Include="Domain\Mask.cs" />
+    <Compile Include="Domain\StatusCode.cs" />
+    <Compile Include="Domain\Subnet.cs" />
+    <Compile Include="Domain\TechContact.cs" />
+    <Compile Include="Domain\Vlan.cs" />
+    <Compile Include="Domain\VlanContact.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

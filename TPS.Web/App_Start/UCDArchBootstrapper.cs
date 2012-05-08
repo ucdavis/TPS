@@ -1,4 +1,5 @@
 using System.Web.Mvc;
+using System.Web.Routing;
 using Castle.Windsor;
 using Microsoft.Practices.ServiceLocation;
 using TPS.Core;
@@ -9,6 +10,7 @@ using UCDArch.Web.IoC;
 using UCDArch.Web.ModelBinder;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(UCDArchBootstrapper), "PreStart")]
+
 namespace TPS.Web.App_Start
 {
     public class UCDArchBootstrapper
@@ -32,11 +34,25 @@ namespace TPS.Web.App_Start
             ControllerBuilder.Current.SetControllerFactory(new WindsorControllerFactory(container));
 
             container.RegisterControllers(typeof(HomeController).Assembly);
+
             ComponentRegistrar.AddComponentsTo(container);
 
             ServiceLocator.SetLocatorProvider(() => new WindsorServiceLocator(container));
 
             return container;
         }
+
+        //protected void Application_BeginRequest()
+        //{
+        //    if (Request.IsLocal)
+        //    {
+        //        MiniProfiler.Start();
+        //    }
+        //}
+
+        //protected void Application_EndRequest()
+        //{
+        //    MiniProfiler.Stop();
+        //}
     }
 }

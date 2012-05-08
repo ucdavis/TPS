@@ -1,0 +1,51 @@
+﻿@using NamSearch2.Helpers
+@using TPS.Core.Domain
+@using TPS.Helpers
+@model TPS.Core.Domain.Vlan
+@{
+    ViewBag.Title = "VLAN Contacts";
+
+}
+@section Header {
+    @Html.ActionLink("Back", "Index", "Home", null, new { data_icon = "arrow-l", data_rel = "back" })
+    <h1>@ViewBag.Title</h1>
+}
+<h3>
+    VLAN: @Model.Name
+</h3>
+@{
+    if (Model.Contacts.Count > 0)
+    {
+    <fieldset>
+        <div id="vlan-contacts">
+            <ul data-role="listview">
+                @foreach (var contact in Model.Contacts)
+                {
+                    <li>
+                        <p>
+                            <h4 class="info">
+                                <strong>Contact: </strong><span>@(String.IsNullOrEmpty(@contact.Name) ? String.Empty : @contact.Name)</span></h4>
+                        </p>
+                        <p>
+                            <h4 class="info">
+                                <strong>Phone: </strong><span>@(String.IsNullOrEmpty(@contact.Phone) ? String.Empty : @String.Format(new PhoneFormatter(), "{0:(###) ###-####}", @contact.Phone))</span></h4>
+                        </p>
+                        <p>
+                            <h4 class="info">
+                                <strong>Email: </strong><span>
+                                    @if (!String.IsNullOrEmpty(@contact.Email))
+                                    {
+                                        <a href="mailto:@contact.Email">@contact.Email</a>
+                                    }
+                                </span>
+                            </h4>
+                        </p>
+                    </li>
+                }
+            </ul>
+        </div>
+    </fieldset>
+
+    }
+
+}

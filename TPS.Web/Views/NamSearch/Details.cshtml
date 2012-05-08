@@ -1,0 +1,35 @@
+﻿@using TPS.Core.Domain
+@model TPS.Web.Models.NamSearchModel
+@{
+    ViewBag.Title = "NAM Search Results";
+}
+@section Header {
+    @Html.ActionLink("Back", "Index", "Home", null, new { data_icon = "arrow-l", data_rel = "back" })
+    <h1>@ViewBag.Title</h1>
+}
+<h2>
+    NAM Summary</h2>
+@{
+    if (Model.DataNams.Count > 0)
+    {
+    <fieldset>
+        <div id="nam-search-results">
+            <ul data-role="listview" data-inset="true">
+                @foreach (DataNam nam in Model.DataNams)
+                {
+                    <li>
+                        <h3>
+                            <a href="@Url.Action("DisplayNam", new { id = nam.Id })">@nam.NamNumber</a></h3>
+                        <p>
+                            <strong>@(@nam.Department == null ? String.Empty : @nam.Department.Name)</strong></p>
+                        <p>@string.Format("Room {0} in {1}", (String.IsNullOrEmpty(@nam.Room) ? String.Empty : @nam.Room), (@nam.Building == null ? String.Empty : @nam.Building.Name))
+                        </p>
+                        <p>
+                            <strong>@(@nam.Status == null ? String.Empty : @nam.Status.Name)</strong></p>
+                    </li>
+                }
+            </ul>
+        </div>
+    </fieldset>
+    }
+}

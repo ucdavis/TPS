@@ -9,7 +9,7 @@ namespace TPS.Web.Controllers
     /// </summary>
     public class AccountController : Controller
     {
-        public ActionResult LogOn(string returnUrl)
+        public ActionResult LogIn(string returnUrl)
         {
             string resultUrl = CASHelper.Login(); //Do the CAS Login
 

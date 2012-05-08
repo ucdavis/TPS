@@ -1,0 +1,51 @@
+﻿@*@using Microsoft.Web.Mvc.Controls*@
+@model TPS.Web.Models.NamSearchModel
+@{
+    ViewBag.Title = "NAM Search";
+}
+<ul data-role="listview" data-inset="true">
+    <li data-role="list-divider">Find a NAM</li>
+    <li>
+        @using (Html.BeginForm("Details", "NamSearch", FormMethod.Get))
+        {
+            <fieldset>
+                <div>
+                    @Html.Label("namNumber", "NAM Number:", new { style = "font-weight: bold;" })
+                    <input id="namNumber" name="namNumber" type="text" placeholder="Enter NAM number"
+                        autofocus="true"></input>
+                </div>
+                <div>
+                    @Html.Label("roomNumber", "Room:", new { style = "font-weight: bold;" })
+                    @*<label for="roomNumber" style="font-weight: bold;">
+                        Room:</label>*@
+                </div>
+                <div>
+                    <input id="roomNumber" name="roomNumber" type="text" placeholder="Enter room number"></input>
+                </div>
+                <div>
+                    <label for="vlan">
+                        VLAN:</label>
+                    @Html.DropDownListFor(x => x.Vlan, new SelectList(Model.Vlans, "Id", "Name", String.Empty), "-- Select a VLAN --", new { id = "ddlVlans" })
+                </div>
+                <div>
+                    <label for="building">
+                        Building:</label>
+                    @Html.DropDownListFor(x => x.Building, new SelectList(Model.Buildings, "Id", "Name", String.Empty), "-- Select a Building --", new { id = "ddlBuildings" })
+                </div>
+                <div>
+                    <label for="department">
+                        Department:</label>
+                    @Html.DropDownListFor(x => x.Department, new SelectList(Model.Departments, "Id", "Name", String.Empty), "-- Select a Department --", new { id = "ddlDepartments" })
+                </div>
+            </fieldset>
+            <fieldset>
+                <button type="submit">
+                    Search*</button>
+                <center>
+                    <i>*Note: Only NAMs matching ALL search parameters will be returned!</i></center>
+            </fieldset>
+        }
+    </li>
+    <li>@Html.ActionLink("About", "About", "Home")</li>
+    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+</ul>
