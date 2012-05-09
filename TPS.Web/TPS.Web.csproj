@@ -317,6 +317,18 @@
     <Content Include="Views\NamSearch\DisplayNam.cshtml" />
     <Content Include="Views\NamSearch\Index.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\NamSearch\SearchResults.Mobile.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\NamSearch\DisplayContact.Mobile.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\NamSearch\DisplayNam.Mobile.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\NamSearch\Index.Mobile.cshtml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

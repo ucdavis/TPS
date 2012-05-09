@@ -10,16 +10,12 @@
         {
             <fieldset>
                 <div>
-                    @Html.Label("namNumber", "NAM Number:", new { style = "font-weight: bold;" })
+                    @Html.Label("namNumber", "NAM:", new { style = "font-weight: bold;" })
                     <input id="namNumber" name="namNumber" type="text" placeholder="Enter NAM number"
                         autofocus="true"></input>
                 </div>
                 <div>
                     @Html.Label("roomNumber", "Room:", new { style = "font-weight: bold;" })
-                    @*<label for="roomNumber" style="font-weight: bold;">
-                        Room:</label>*@
-                </div>
-                <div>
                     <input id="roomNumber" name="roomNumber" type="text" placeholder="Enter room number"></input>
                 </div>
                 <div>
@@ -38,12 +34,11 @@
                     @Html.DropDownListFor(x => x.Department, new SelectList(Model.Departments, "Id", "Name", String.Empty), "-- Select a Department --", new { id = "ddlDepartments" })
                 </div>
             </fieldset>
-            @*<fieldset>*@
+            <fieldset>
                 <button type="submit">
                     Search*</button>
-                
-                    <i style="text-align: center">*Note: Only NAMs matching ALL search parameters will be returned!</i>
-           @* </fieldset>*@
+                <i style="text-align: center">*NAMs must match all criteria!</i>
+            </fieldset>
         }
     </li>
     <li>@Html.ActionLink("Home", "Index", "Home")</li>

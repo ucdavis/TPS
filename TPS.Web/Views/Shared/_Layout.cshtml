@@ -25,6 +25,7 @@
 </head>
 <body>
     <div data-role="page" data-theme="b">
+        @Html.Partial("_ViewSwitcher")
         <div data-role="header">
             @if (IsSectionDefined("Header"))
             {
@@ -34,6 +35,8 @@
             {
                 <h1>@ViewBag.Title</h1>
                 @Html.Partial("_LoginPartial")
+                @Html.ActionLink("Log Out", "LogOut", "Account", routeValues: null, htmlAttributes: new { data_icon = "gear", @class = "ui-btn-left" })
+                @Html.ActionLink("Home", "Index", "Home", routeValues: null, htmlAttributes: new { data_icon = "check", @class = "ui-btn-right" })
             }
         </div>
         <div data-role="content">

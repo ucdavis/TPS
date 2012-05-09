@@ -1,7 +1,7 @@
 ﻿@using TPS.Web.Helpers
 @model TPS.Core.Domain.Vlan
 @{
-    ViewBag.Title = "VLAN Contacts";
+    ViewBag.Title = "Contacts";
 
 }
 @section Header {
@@ -16,7 +16,7 @@
     {
     <fieldset>
         <div id="vlan-contacts">
-            <ul data-role="listview" filter-data="true">
+            <ul data-role="listview">
                 @foreach (var contact in Model.Contacts)
                 {
                     <li>

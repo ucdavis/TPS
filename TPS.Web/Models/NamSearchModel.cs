@@ -45,6 +45,9 @@ namespace TPS.Web.Models
             var hasVlanId = !(String.IsNullOrEmpty(vlanId) || vlanId.Equals("0"));
             var hasBuildingId = !(String.IsNullOrEmpty(buildingId) || buildingId.Equals("0"));
             var hasDepartmentId = !(String.IsNullOrEmpty(departmentId) || departmentId.Equals("0"));
+            var hasSearchParameters = hasNamNumber || hasRoomNumber || hasVlanId || hasBuildingId || hasDepartmentId
+                                          ? true
+                                          : false;
 
             var viewModel = new NamSearchModel
                                 {
@@ -54,36 +57,39 @@ namespace TPS.Web.Models
                                     Departments = repository.OfType<Department>().Queryable.OrderBy(t => t.Name).ToList()
                                 };
 
-            viewModel.NamSearchExpression = PredicateBuilder.True<DataNam>();
+            if (hasSearchParameters)
+            {
+                viewModel.NamSearchExpression = PredicateBuilder.True<DataNam>();
 
-            if (hasNamNumber)
-            {
-                viewModel.NamSearchExpression = viewModel.NamSearchExpression.And(p => p.NamNumber.Equals(namNumber));
-            }
-            if (hasRoomNumber)
-            {
-                viewModel.NamSearchExpression = viewModel.NamSearchExpression.And(p => p.Room.Equals(roomNumber));
-            }
-            if (hasVlanId)
-            {
-                viewModel.NamSearchExpression = viewModel.NamSearchExpression.And(p => p.Vlan.Id == int.Parse(vlanId));
-            }
-            if (hasBuildingId)
-            {
-                viewModel.NamSearchExpression =
-                    viewModel.NamSearchExpression.And(p => p.Building.Id == int.Parse(buildingId));
-            }
-            if (hasDepartmentId)
-            {
-                viewModel.NamSearchExpression =
-                   viewModel.NamSearchExpression.And(p => p.Department.Id.Equals(departmentId));
-            }
+                if (hasNamNumber)
+                {
+                    viewModel.NamSearchExpression = viewModel.NamSearchExpression.And(p => p.NamNumber.Equals(namNumber));
+                }
+                if (hasRoomNumber)
+                {
+                    viewModel.NamSearchExpression = viewModel.NamSearchExpression.And(p => p.Room.Equals(roomNumber));
+                }
+                if (hasVlanId)
+                {
+                    viewModel.NamSearchExpression = viewModel.NamSearchExpression.And(p => p.Vlan.Id == int.Parse(vlanId));
+                }
+                if (hasBuildingId)
+                {
+                    viewModel.NamSearchExpression =
+                        viewModel.NamSearchExpression.And(p => p.Building.Id == int.Parse(buildingId));
+                }
+                if (hasDepartmentId)
+                {
+                    viewModel.NamSearchExpression =
+                       viewModel.NamSearchExpression.And(p => p.Department.Id.Equals(departmentId));
+                }
 
-            viewModel.DataNams = repository.OfType<DataNam>()
-                .Queryable
-                .Where(viewModel.NamSearchExpression)
-                .OrderBy(t => t.NamNumber)
-                .ToList();
+                viewModel.DataNams = repository.OfType<DataNam>()
+                    .Queryable
+                    .Where(viewModel.NamSearchExpression)
+                    .OrderBy(t => t.NamNumber)
+                    .ToList();
+            }
 
             return viewModel;
         }

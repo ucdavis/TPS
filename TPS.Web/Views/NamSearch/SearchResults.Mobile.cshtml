@@ -14,20 +14,19 @@
     {
     <fieldset>
         <div id="nam-search-results">
-            <ul data-role="listview" data-inset="true" data-filter= @(Model.DataNams.Count > 4 ? "true" : "false")>
-                                                                   
+            @* <ul data-role="listview" data-inset="true" data-filter="true">*@
+            <ul data-role="listview" data-filter= @(Model.DataNams.Count > 3 ? "true" : "false")>
                 @foreach (DataNam nam in Model.DataNams)
                 {
-                    <li>
-                        <h3>
-                            <a href="@Url.Action("DisplayNam", new { id = nam.Id })">@nam.NamNumber</a></h3>
+                    <li><a href="@Url.Action("DisplayNam", new { id = nam.Id })">
+                        <h3>@nam.NamNumber</h3>
                         <p>
                             <strong>@(@nam.Department == null ? String.Empty : @nam.Department.Name)</strong></p>
                         <p>@string.Format("Room {0} in {1}", (String.IsNullOrEmpty(@nam.Room) ? String.Empty : @nam.Room), (@nam.Building == null ? String.Empty : @nam.Building.Name))
                         </p>
                         <p>
                             <strong>@(@nam.Status == null ? String.Empty : @nam.Status.Name)</strong></p>
-                    </li>
+                    </a></li>
                 }
             </ul>
         </div>
