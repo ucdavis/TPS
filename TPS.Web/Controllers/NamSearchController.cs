@@ -48,13 +48,13 @@ namespace TPS.Web.Controllers
             return View(viewModel);
         }
 
-        public ActionResult SearchResults(string namNumber, string roomNumber, string vlanId, string buildingId, string departmentId)
+        public ActionResult SearchResults(string namNumber, string roomNumber, string vlan, string building, string department)
         {
             var hasNamNumber = !(String.IsNullOrEmpty(namNumber) || namNumber.Equals("0"));
             var hasRoomNumber = !(String.IsNullOrEmpty(roomNumber) || roomNumber.Equals("0"));
-            var hasVlanId = !(String.IsNullOrEmpty(vlanId) || vlanId.Equals("0"));
-            var hasBuildingId = !(String.IsNullOrEmpty(buildingId) || buildingId.Equals("0"));
-            var hasDepartmentId = !(String.IsNullOrEmpty(departmentId) || departmentId.Equals("0"));
+            var hasVlanId = !(String.IsNullOrEmpty(vlan) || vlan.Equals("0"));
+            var hasBuildingId = !(String.IsNullOrEmpty(building) || building.Equals("0"));
+            var hasDepartmentId = !(String.IsNullOrEmpty(department) || department.Equals("0"));
             var hasSearchParameters = hasNamNumber || hasRoomNumber || hasVlanId || hasBuildingId || hasDepartmentId
                                           ? true
                                           : false;
@@ -79,17 +79,17 @@ namespace TPS.Web.Controllers
                 if (hasVlanId)
                 {
                     NamSearchExpression =
-                        NamSearchExpression.And(p => p.Vlan.Id == int.Parse(vlanId));
+                        NamSearchExpression.And(p => p.Vlan.Id == int.Parse(vlan));
                 }
                 if (hasBuildingId)
                 {
                     NamSearchExpression =
-                        NamSearchExpression.And(p => p.Building.Id == int.Parse(buildingId));
+                        NamSearchExpression.And(p => p.Building.Id == int.Parse(building));
                 }
                 if (hasDepartmentId)
                 {
                     NamSearchExpression =
-                        NamSearchExpression.And(p => p.Department.Id.Equals(departmentId));
+                        NamSearchExpression.And(p => p.Department.Id.Equals(department));
                 }
 
                 viewModel.DataNams = _dataNamRepository
