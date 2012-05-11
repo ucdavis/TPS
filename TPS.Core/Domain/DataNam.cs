@@ -4,7 +4,7 @@ using UCDArch.Core.DomainModel;
 namespace TPS.Core.Domain
 {
     [Serializable]
-    public class DataNam : DomainObjectWithTypedId<int>
+    public class DataNam : DomainObject
     {
         public virtual string NamNumber { get; set; }
 

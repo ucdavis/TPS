@@ -4,7 +4,7 @@ using UCDArch.Core.DomainModel;
 namespace TPS.Core.Domain
 {
     [Serializable]
-    public class VlanContact : DomainObjectWithTypedId<int>
+    public class VlanContact : DomainObject
     {
         public virtual Subnet Subnet { get; set; }
 

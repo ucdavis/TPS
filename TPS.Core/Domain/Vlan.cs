@@ -5,7 +5,7 @@ using UCDArch.Core.DomainModel;
 namespace TPS.Core.Domain
 {
     [Serializable]
-    public class Vlan : DomainObjectWithTypedId<int>
+    public class Vlan : DomainObject
     {
         public virtual string Name { get; set; }
 
