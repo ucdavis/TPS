@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class DivisionMap : FluentNHibernate.Mapping.ClassMap<Division>
+    public class DivisionMap : FluentNHibernate.Mapping.ClassMap<Division>
     {
         public DivisionMap()
         {

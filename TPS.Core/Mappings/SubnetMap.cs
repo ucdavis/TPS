@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class SubnetMap : FluentNHibernate.Mapping.ClassMap<Subnet>
+    public class SubnetMap : FluentNHibernate.Mapping.ClassMap<Subnet>
     {
         public SubnetMap()
         {

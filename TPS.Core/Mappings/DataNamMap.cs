@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class DataNamMap : FluentNHibernate.Mapping.ClassMap<DataNam>
+    public class DataNamMap : FluentNHibernate.Mapping.ClassMap<DataNam>
     {
         public DataNamMap()
         {

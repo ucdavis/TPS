@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class DepartmentMap : FluentNHibernate.Mapping.ClassMap<Department>
+    public class DepartmentMap : FluentNHibernate.Mapping.ClassMap<Department>
     {
         public DepartmentMap()
         {

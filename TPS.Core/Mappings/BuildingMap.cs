@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class BuildingMap : FluentNHibernate.Mapping.ClassMap<Building>
+    public class BuildingMap : FluentNHibernate.Mapping.ClassMap<Building>
     {
         public BuildingMap()
         {

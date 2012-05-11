@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class CollegeMap : FluentNHibernate.Mapping.ClassMap<College>
+    public class CollegeMap : FluentNHibernate.Mapping.ClassMap<College>
     {
         public CollegeMap()
         {

@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class TechContactMap : FluentNHibernate.Mapping.ClassMap<TechContact>
+    public class TechContactMap : FluentNHibernate.Mapping.ClassMap<TechContact>
     {
         public TechContactMap()
         {

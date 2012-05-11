@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class StatusCodeMap : FluentNHibernate.Mapping.ClassMap<StatusCode>
+    public class StatusCodeMap : FluentNHibernate.Mapping.ClassMap<StatusCode>
     {
         public StatusCodeMap()
         {

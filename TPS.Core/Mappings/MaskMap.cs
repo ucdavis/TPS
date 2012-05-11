@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class MaskMap : FluentNHibernate.Mapping.ClassMap<Mask>
+    public class MaskMap : FluentNHibernate.Mapping.ClassMap<Mask>
     {
         public MaskMap()
         {

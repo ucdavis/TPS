@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class VlanContactMap : FluentNHibernate.Mapping.ClassMap<VlanContact>
+    public class VlanContactMap : FluentNHibernate.Mapping.ClassMap<VlanContact>
     {
         public VlanContactMap()
         {

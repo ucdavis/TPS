@@ -2,7 +2,7 @@
 
 namespace TPS.Core.Mappings
 {
-    public sealed class BillingIdMap : FluentNHibernate.Mapping.ClassMap<BillingId>
+    public class BillingIdMap : FluentNHibernate.Mapping.ClassMap<BillingId>
     {
         public BillingIdMap()
         {
