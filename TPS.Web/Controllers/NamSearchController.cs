@@ -114,5 +114,19 @@ namespace TPS.Web.Controllers
 
             return View(vlan);
         }
+
+        public ActionResult DbTest()
+        {
+            ViewBag.Message = "Welcome to HTML5 IndexedDB Test.";
+
+            return View();
+        }
+
+        public ActionResult DbjsTest()
+        {
+            ViewBag.Message = "Welcome to db.js, the HTML5 IndexedDB wrapper Test.";
+
+            return View();
+        }
     }
 }
