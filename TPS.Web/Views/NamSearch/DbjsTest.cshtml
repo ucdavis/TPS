@@ -3,9 +3,92 @@
 }
 @section AdditionalScripts
 {
-    <script src="@Url.Script("db.js")" type="text/javascript"></script>
+    <script src='@Url.Script("db.js")' type="text/javascript"> </script>
     <script type="text/javascript" language="javascript">
+
+        var server;
+
+        db.open({
+            server: 'my-app',
+            version: 1,
+            schema: {
+                test: {
+                    key: {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    }
+                }
+            }
+        }).done(function (s) {
+            server = s;
+
+        });
 
     </script>
 }
 <h2>@ViewBag.Message</h2>
+<div id="names">
+</div>
+<hr />
+<div id="names2">
+</div>
+<hr />
+<div id="names3">
+</div>
+<script type="text/javascript" language="javascript">
+    function pausecomp(ms) {
+        ms += new Date().getTime();
+        while (new Date() < ms) {
+        }
+        alert("end wait");
+    };
+
+    while (server === undefined) {
+        //May need to wait before server is ready.
+        pausecomp(50);
+    };
+
+    server.people.add({
+        firstName: 'Aaron',
+        lastName: 'Powell'
+    }).done(function (item) {
+        //item stored
+    });
+
+    server.people.add({
+        firstName: 'Michael',
+        lastName: 'Lowe'
+    }).done(function (item) {
+        //item stored
+    });
+
+    server.people.add({
+        firstName: 'Lewis',
+        lastName: 'Stein'
+    }).done(function (item) {
+        //item stored
+    });
+
+    server.query('people')
+        .filter('firstName', 'Michael')
+        .execute()
+        .done(function (results) {
+
+            $("#names").html(results[0].firstName + " " + results[0].lastName);
+        });
+
+    server.query('people')
+        .filter('firstName', 'Aaron')
+        .execute()
+        .done(function (results) {
+            $("#names2").html(results[0].firstName + " " + results[0].lastName);
+        });
+
+    // This syntax does not appear to work, but returns all records instead!
+    server.people.query('firstName', 'Michael')
+        .execute()
+        .done(function (results) {
+            $("#names3").html(results[0].firstName + " " + results[0].lastName);
+        });
+
+</script>
