@@ -117,14 +117,21 @@ namespace TPS.Web.Controllers
 
         public ActionResult DbTest()
         {
-            ViewBag.Message = "Welcome to HTML5 IndexedDB Test.";
+            ViewBag.Message = "Welcome to HTML5 IndexedDB Test";
 
             return View();
         }
 
         public ActionResult DbjsTest()
         {
-            ViewBag.Message = "Welcome to db.js, the HTML5 IndexedDB wrapper Test.";
+            ViewBag.Message = "Welcome to db.js, the HTML5 IndexedDB wrapper Test";
+
+            return View();
+        }
+
+        public ActionResult GettingStartedTest()
+        {
+            ViewBag.Message = "Getting-Started-with-IndexedDB Test";
 
             return View();
         }

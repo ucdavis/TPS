@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "Getting-Started-with-IndexedDB";
+}
+@section AdditionalScripts
+{
+    <script type="text/javascript" language="javascript">
+
+        var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
+        var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+        var db;
+        (function () {
+            var peopleData = [
+                { name: "John Doe", email: "john@company.com" },
+                { name: "Don Doe", email: "don@company.com" }
+            ];
+
+            function initDb() {
+                var request = indexedDB.open("PeopleDB", 1);
+                request.onsuccess = function (evt) {
+                    db = request.result;
+                };
+
+                request.onerror = function (evt) {
+                    console.log("IndexedDB error: " + evt.target.errorCode);
+                };
+
+                request.onupgradeneeded = function (evt) {
+                    var objectStore = evt.currentTarget.result.createObjectStore("people", { keyPath: "id", autoIncrement: true });
+
+                    objectStore.createIndex("name", "name", { unique: false });
+                    objectStore.createIndex("email", "email", { unique: true });
+
+                    for (i in peopleData) {
+                        objectStore.add(peopleData[i]);
+                    }
+                };
+            }
+
+            function contentLoaded() {
+                initDb();
+                var btnAdd = document.getElementById("btnAdd");
+                var btnDelete = document.getElementById("btnDelete");
+                var btnDeleteAll = document.getElementById("btnDeleteAll");
+                var btnPrint = document.getElementById("btnPrint");
+
+                btnAdd.addEventListener("click", function () {
+                    //var output = document.getElementById("peopleList");
+                    // or
+                    var output = $("#peopleList")[0];
+
+                    var name = document.getElementById("txtName").value;
+                    var email = document.getElementById("txtEmail").value;
+
+                    var transaction = db.transaction("people", IDBTransaction.READ_WRITE);
+                    var objectStore = transaction.objectStore("people");
+                    var request = objectStore.add({ name: name, email: email });
+                    request.onsuccess = function (evt) {
+
+                        // do something after the add succeeded
+                        var request2 = objectStore.openCursor();
+                        output.innerHTML = "";
+                        request2.onsuccess = function(evt2) {
+
+                            var cursor = evt2.target.result;
+                            if (cursor) {
+                                output.innerHTML += "id: " + cursor.key + " is " + cursor.value.name + "<br />";
+                                cursor.continue();
+                            }
+                        };
+                    };
+                }, false);
+
+                btnDelete.addEventListener("click", function () {
+                    var id = document.getElementById("txtID").value;
+                    var transaction = db.transaction("people", IDBTransaction.READ_WRITE);
+                    var objectStore = transaction.objectStore("people");
+                    var request = objectStore.delete(id);
+                    request.onsuccess = function(evt) {
+                        // It's gone!
+                    };
+                }, false);
+
+                btnDeleteAll.addEventListener("click", function () {
+                    var transaction = db.transaction("people", IDBTransaction.READ_WRITE);
+                    var objectStore = transaction.objectStore("people");
+                    var request = objectStore.clear();
+                    request.onsuccess = function (evt) {
+                        // do something after the clear succeeded
+                        $("#printOutput")[0].innerHTML = "";
+                        $("#peopleList")[0].innerHTML = "";
+                    };
+                 }, false);
+
+                btnPrint.addEventListener("click", function () {
+                    var output = document.getElementById("printOutput");
+                    output.textContent = "";
+
+                    var transaction = db.transaction("people", IDBTransaction.READ_WRITE);
+                    var objectStore = transaction.objectStore("people");
+
+                    var request = objectStore.openCursor();
+                    request.onsuccess = function(evt) {
+                        var cursor = evt.target.result;
+
+                        if (cursor) {
+                            output.innerHTML += "id: " + cursor.key + " is " + cursor.value.name + "<br />";
+                            cursor.continue ();
+                        }
+                        else {console.log("No more entries!");}
+
+                };
+                }, false);
+            }
+
+            window.addEventListener("DOMContentLoaded", contentLoaded, false);
+    })();
+
+    </script>
+}
+<h2>@ViewBag.Message</h2>
+<hr />
+<label for="txtName">
+    Name:
+</label>
+<input type="text" id="txtName" name="txtName" />
+<br />
+<label for="txtEmail">
+    Email:
+</label>
+<input type="email" id="txtEmail" name="txtEmail" />
+<br />
+<div id="peopleList">
+</div>
+<br />
+<input type="button" id="btnAdd" value="Add Record" />
+<br />
+<label for="txtID">
+    ID:
+</label>
+<input type="text" id="txtID" name="txtID" />
+<br />
+<input type="button" id="btnDelete" value="Delete Record by Id" />
+<br />
+<input type="button" id="btnDeleteAll" value="Delete All Records" />
+<br />
+<input type="button" id="btnPrint" value="Print objectStore" />
+<br />
+<output id="printOutput">
+        </output>
