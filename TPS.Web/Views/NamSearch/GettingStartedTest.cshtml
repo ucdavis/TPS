@@ -36,11 +36,35 @@
                 };
             }
 
+            // Output all the people in the objectStore to the web page,
+            // including a delete link to remove the record.
+            function renderPeople(id, name){
+                var people = $("#peopleList")[0];
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+
+                var t = document.createTextNode(id + ": " + name);
+
+                a.addEventListener("click", function() {
+                    indexedDB.deletePerson(id);
+                }, false);
+
+                a.textContent = " [Delete]";
+                li.appendChild(t);
+                li.appendChild(a);
+                people.appendChild(li);
+            }
+
+            // Once the page content has been loaded, wire up all the buttons, event listeners and database functions:
             function contentLoaded() {
                 initDb();
+
+                // Add all the button related event listeners:
+
                 var btnAdd = document.getElementById("btnAdd");
                 var btnDelete = document.getElementById("btnDelete");
                 var btnDeleteAll = document.getElementById("btnDeleteAll");
+                var btnDeleteObjectStore = document.getElementById("btnDeleteObjectStore");
                 var btnPrint = document.getElementById("btnPrint");
 
                 btnAdd.addEventListener("click", function () {
@@ -56,17 +80,18 @@
                     var request = objectStore.add({ name: name, email: email });
                     request.onsuccess = function (evt) {
 
-                        // do something after the add succeeded
-                        var request2 = objectStore.openCursor();
-                        output.innerHTML = "";
-                        request2.onsuccess = function(evt2) {
+                        indexedDB.getAllPeople();
+//                        // do something after the add succeeded
+//                        var request2 = objectStore.openCursor();
+//                        output.innerHTML = "";
+//                        request2.onsuccess = function(evt2) {
 
-                            var cursor = evt2.target.result;
-                            if (cursor) {
-                                output.innerHTML += "id: " + cursor.key + " is " + cursor.value.name + "<br />";
-                                cursor.continue();
-                            }
-                        };
+//                            var cursor = evt2.target.result;
+//                            if (cursor) {
+//                                output.innerHTML += "id: " + cursor.key + " is " + cursor.value.name + "<br />";
+//                                cursor.continue();
+//                            }
+//                        };
                     };
                 }, false);
 
@@ -91,7 +116,19 @@
                     };
                  }, false);
 
-                btnPrint.addEventListener("click", function () {
+                btnDeleteObjectStore.addEventListener("click", function () {
+                    db.deleteObjectStore("people");
+//                    var transaction = db.transaction("people", IDBTransaction.READ_WRITE);
+//                    var objectStore = transaction.objectStore("people");
+//                    var request = objectStore.clear();
+//                    request.onsuccess = function (evt) {
+//                        // do something after the clear succeeded
+//                        $("#printOutput")[0].innerHTML = "";
+//                        $("#peopleList")[0].innerHTML = "";
+//                    };
+                 }, false);
+
+                btnPrint.addEventListener("click", function() {
                     var output = document.getElementById("printOutput");
                     output.textContent = "";
 
@@ -104,12 +141,57 @@
 
                         if (cursor) {
                             output.innerHTML += "id: " + cursor.key + " is " + cursor.value.name + "<br />";
-                            cursor.continue ();
+                            cursor.continue();
+                        } else {
+                            console.log("No more entries!");
                         }
-                        else {console.log("No more entries!");}
-
-                };
+                    };
                 }, false);
+
+                // Add all the database, non-button related functions:
+
+                indexedDB.onerror = function(e) {
+                    console.log(e);
+                };
+
+                indexedDB.deletePerson = function(id) {
+                    var trans = db.transaction("people", IDBTransaction.READ_WRITE);
+                    var store = trans.objectStore("people");
+
+                    var request = store.delete(id);
+
+                    request.onsuccess = function(e) {
+                        indexedDB.getAllPeople();
+                    };
+
+                    request.onerror = function(e) {
+                        console.log("Error Adding: ", e);
+                    };
+                };
+
+                indexedDB.getAllPeople = function() {
+
+                    var people = $("#peopleList")[0];
+                    people.innerHTML = "";
+
+                    var trans = db.transaction("people", IDBTransaction.READ_WRITE);
+                    var store = trans.objectStore("people");
+
+                    // Get everything in the store;
+                     var cursorRequest = store.openCursor();
+
+                    cursorRequest.onsuccess = function(e) {
+                        var result = e.target.result;
+
+                        if(!!result == false)
+                            return;
+
+                        renderPeople(result.key, result.value.name);
+                        result.continue();
+                    };
+
+                    cursorRequest.onerror = indexedDB.onerror;
+                };
             }
 
             window.addEventListener("DOMContentLoaded", contentLoaded, false);
@@ -129,8 +211,10 @@
 </label>
 <input type="email" id="txtEmail" name="txtEmail" />
 <br />
-<div id="peopleList">
-</div>
+<ul>
+    <div id="peopleList">
+    </div>
+</ul>
 <br />
 <input type="button" id="btnAdd" value="Add Record" />
 <br />
@@ -142,6 +226,8 @@
 <input type="button" id="btnDelete" value="Delete Record by Id" />
 <br />
 <input type="button" id="btnDeleteAll" value="Delete All Records" />
+<br />
+<input type="button" id="btnDeleteObjectStore" value="Delete objectStore" />
 <br />
 <input type="button" id="btnPrint" value="Print objectStore" />
 <br />
