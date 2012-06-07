@@ -8,6 +8,7 @@
         var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
         var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
         var db;
+
         (function () {
             var peopleData = [
                 { name: "John Doe", email: "john@company.com" },
@@ -15,9 +16,19 @@
             ];
 
             function initDb() {
-                var request = indexedDB.open("PeopleDB", 1);
+                var request = indexedDB.open("PeopleDB", 2);
                 request.onsuccess = function (evt) {
+                    debugger;
                     db = request.result;
+
+                    db.onversionchange = function(e) {
+                        // This event is fired when a database is deleted.
+                        console.log("Version change triggered, so closing database connection", e.oldVersion, e.newVersion, db);
+                        db.close();
+                    };
+                    console.log("DB opened.", db, evt);
+                    /* Code for ${db.open} */
+
                 };
 
                 request.onerror = function (evt) {
@@ -25,7 +36,24 @@
                 };
 
                 request.onupgradeneeded = function (evt) {
-                    var objectStore = evt.currentTarget.result.createObjectStore("people", { keyPath: "id", autoIncrement: true });
+                    debugger;
+                    // This event is fired only if the requested, i.e. new version number is higher than the existing database;
+                    // otherwise, it is not fired, and an error 12 is thrown, which is probably a new version number is earlier
+                    // than requested version number message.
+
+                    var localDB = evt.currentTarget.result;
+
+                    // Check if object store with the same name already exists, and if it does, delete it before recreating it;
+                    // otherwise, an error is thrown: A mutation operation was attempted on a database that did not allow mutations.
+                    // NOTE: This appears to  be the only place where an objectStore can be deleted without throwing a mutation error.
+
+                    if (localDB.objectStoreNames.contains("people")) {
+                        localDB.deleteObjectStore("people");
+                    }
+
+                    // Make sure that an objectStore with the name does not already exist or this fails with an error.
+                    // See above.
+                    var objectStore = localDB.createObjectStore("people", { keyPath: "id", autoIncrement: true });
 
                     objectStore.createIndex("name", "name", { unique: false });
                     objectStore.createIndex("email", "email", { unique: true });
@@ -38,12 +66,12 @@
 
             // Output all the people in the objectStore to the web page,
             // including a delete link to remove the record.
-            function renderPeople(id, name){
+            function renderPeople(id, name, email){
                 var people = $("#peopleList")[0];
                 var li = document.createElement("li");
                 var a = document.createElement("a");
 
-                var t = document.createTextNode(id + ": " + name);
+                var t = document.createTextNode(id + ": " + name + "; " + email);
 
                 a.addEventListener("click", function() {
                     indexedDB.deletePerson(id);
@@ -64,8 +92,10 @@
                 var btnAdd = document.getElementById("btnAdd");
                 var btnDelete = document.getElementById("btnDelete");
                 var btnDeleteAll = document.getElementById("btnDeleteAll");
-                var btnDeleteObjectStore = document.getElementById("btnDeleteObjectStore");
+                var btnDeleteDatabase = document.getElementById("btnDeleteDatabase");
                 var btnPrint = document.getElementById("btnPrint");
+                var btnSearchByName = document.getElementById("btnSearchByName");
+                var btnSearchByEmail = document.getElementById("btnSearchByEmail");
 
                 btnAdd.addEventListener("click", function () {
                     //var output = document.getElementById("peopleList");
@@ -79,7 +109,7 @@
                     var objectStore = transaction.objectStore("people");
                     var request = objectStore.add({ name: name, email: email });
                     request.onsuccess = function (evt) {
-
+                        debugger;
                         indexedDB.getAllPeople();
 //                        // do something after the add succeeded
 //                        var request2 = objectStore.openCursor();
@@ -92,6 +122,32 @@
 //                                cursor.continue();
 //                            }
 //                        };
+                    };
+                }, false);
+
+                btnSearchByName.addEventListener("click", function () {
+                    var output = $("#peopleList")[0];
+                    output.innerHTML = "";
+                    var name = document.getElementById("txtName").value;
+
+                    var objectStore = db.transaction("people").objectStore("people");
+                    var index = objectStore.index("name");
+                    index.get(name).onsuccess = function (evt) {
+                        debugger;
+                        renderPeople(evt.target.result.id, evt.target.result.name, evt.target.result.email);
+                    };
+                }, false);
+
+                btnSearchByEmail.addEventListener("click", function () {
+                    var output = $("#peopleList")[0];
+                    output.innerHTML = "";
+                    var email = document.getElementById("txtEmail").value;
+
+                    var objectStore = db.transaction("people").objectStore("people");
+                    var index = objectStore.index("email");
+                    index.get(email).onsuccess = function (evt) {
+                        debugger;
+                        renderPeople(evt.target.result.id, evt.target.result.name, evt.target.result.email);
                     };
                 }, false);
 
@@ -116,19 +172,33 @@
                     };
                  }, false);
 
-                btnDeleteObjectStore.addEventListener("click", function () {
-                    db.deleteObjectStore("people");
-//                    var transaction = db.transaction("people", IDBTransaction.READ_WRITE);
-//                    var objectStore = transaction.objectStore("people");
-//                    var request = objectStore.clear();
-//                    request.onsuccess = function (evt) {
-//                        // do something after the clear succeeded
-//                        $("#printOutput")[0].innerHTML = "";
-//                        $("#peopleList")[0].innerHTML = "";
-//                    };
+                btnDeleteDatabase.addEventListener("click", function () {
+                    console.log("Trying to delete database");
+                    try {
+                      var dbDeleteRequest = window.indexedDB.deleteDatabase("PeopleDB");
+                      dbDeleteRequest.onsuccess = function(e){
+                        console.log("Database successfully deleted");
+                        /* Code for ${db.open} */
+                      };
+                      dbDeleteRequest.onupgradeneeded = function(e){
+                          debugger;
+                        var db = dbOpenRequest.result;
+                        console.log("Database upgrade needed");
+                        /* Code for ${db.upgrade} */
+                      };
+                      dbDeleteRequest.onerror = function(e){
+                        console.log("Error deleting DB");
+                      };
+                      dbDeleteRequest.onblocked = function(e){
+                        console.log("Deleting DB Blocked. Try closing the database and then deleting it", dbDeleteRequest.error, e.type);
+                      };
+                    } catch (e) {
+                      console.log(e);
+                    }
                  }, false);
 
                 btnPrint.addEventListener("click", function() {
+
                     var output = document.getElementById("printOutput");
                     output.textContent = "";
 
@@ -186,7 +256,7 @@
                         if(!!result == false)
                             return;
 
-                        renderPeople(result.key, result.value.name);
+                        renderPeople(result.key, result.value.name, result.value.email);
                         result.continue();
                     };
 
@@ -201,11 +271,14 @@
 }
 <h2>@ViewBag.Message</h2>
 <hr />
+<br />
+<input type="button" id="btnSearchByName" value="Search by Name" />
 <label for="txtName">
     Name:
 </label>
 <input type="text" id="txtName" name="txtName" />
 <br />
+<input type="button" id="btnSearchByEmail" value="Search by Email" />
 <label for="txtEmail">
     Email:
 </label>
@@ -227,7 +300,7 @@
 <br />
 <input type="button" id="btnDeleteAll" value="Delete All Records" />
 <br />
-<input type="button" id="btnDeleteObjectStore" value="Delete objectStore" />
+<input type="button" id="btnDeleteDatabase" value="Delete Database" />
 <br />
 <input type="button" id="btnPrint" value="Print objectStore" />
 <br />
