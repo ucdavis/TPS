@@ -18,11 +18,12 @@
             function initDb() {
                 var request = indexedDB.open("PeopleDB", 2);
                 request.onsuccess = function (evt) {
-                    debugger;
+                   // debugger;
                     db = request.result;
 
                     db.onversionchange = function(e) {
-                        // This event is fired when a database is deleted.
+                        // This event is fired when a database is deleted; perhaps may also be fired if you initiated the
+                        // open command with a higher version number.
                         console.log("Version change triggered, so closing database connection", e.oldVersion, e.newVersion, db);
                         db.close();
                     };
@@ -36,7 +37,7 @@
                 };
 
                 request.onupgradeneeded = function (evt) {
-                    debugger;
+                    //debugger;
                     // This event is fired only if the requested, i.e. new version number is higher than the existing database;
                     // otherwise, it is not fired, and an error 12 is thrown, which is probably a new version number is earlier
                     // than requested version number message.
@@ -83,9 +84,35 @@
                 people.appendChild(li);
             }
 
+            function loadDropdown() {
+                debugger;
+                var nameList =  $('select#names').get(0);
+                $(nameList).empty();
+                $(nameList).append($('<option selected="selected">-- Select a Name --</option>').val(""));
+                $("nameList option[value='']").attr("selected", true);
+
+                var trans = db.transaction("people", IDBTransaction.READ_WRITE);
+                var store = trans.objectStore("people");
+
+                // Get everything in the store;
+                var cursorRequest = store.openCursor();
+
+                cursorRequest.onsuccess = function(e) {
+                     debugger;
+                    var result = e.target.result;
+
+                    if (!!result == false)
+                        return;
+
+                    $(nameList).append($('<option></option>').val(result.value.name).html(result.value.name));
+                    result.continue();
+                };
+            }
+
             // Once the page content has been loaded, wire up all the buttons, event listeners and database functions:
             function contentLoaded() {
                 initDb();
+                loadDropdown();
 
                 // Add all the button related event listeners:
 
@@ -96,6 +123,28 @@
                 var btnPrint = document.getElementById("btnPrint");
                 var btnSearchByName = document.getElementById("btnSearchByName");
                 var btnSearchByEmail = document.getElementById("btnSearchByEmail");
+                var selectName =  $('select#names').get(0);
+
+                selectName.addEventListener("change", function () {
+                    var output = $("#peopleList")[0];
+                    output.innerHTML = "";
+                    var name = "";
+
+                    $('select#names option:selected').each(function () {
+                        //debugger;
+                            name = $(this).val();
+                    });
+
+                    if (name != ""){
+
+                        var objectStore = db.transaction("people").objectStore("people");
+                        var index = objectStore.index("name");
+                        index.get(name).onsuccess = function (evt) {
+                            //debugger;
+                            renderPeople(evt.target.result.id, evt.target.result.name, evt.target.result.email);
+                        };
+                    }
+                }, false);
 
                 btnAdd.addEventListener("click", function () {
                     //var output = document.getElementById("peopleList");
@@ -109,19 +158,8 @@
                     var objectStore = transaction.objectStore("people");
                     var request = objectStore.add({ name: name, email: email });
                     request.onsuccess = function (evt) {
-                        debugger;
+                       // do something after the add succeeded
                         indexedDB.getAllPeople();
-//                        // do something after the add succeeded
-//                        var request2 = objectStore.openCursor();
-//                        output.innerHTML = "";
-//                        request2.onsuccess = function(evt2) {
-
-//                            var cursor = evt2.target.result;
-//                            if (cursor) {
-//                                output.innerHTML += "id: " + cursor.key + " is " + cursor.value.name + "<br />";
-//                                cursor.continue();
-//                            }
-//                        };
                     };
                 }, false);
 
@@ -133,7 +171,7 @@
                     var objectStore = db.transaction("people").objectStore("people");
                     var index = objectStore.index("name");
                     index.get(name).onsuccess = function (evt) {
-                        debugger;
+                        //debugger;
                         renderPeople(evt.target.result.id, evt.target.result.name, evt.target.result.email);
                     };
                 }, false);
@@ -146,7 +184,7 @@
                     var objectStore = db.transaction("people").objectStore("people");
                     var index = objectStore.index("email");
                     index.get(email).onsuccess = function (evt) {
-                        debugger;
+                        //debugger;
                         renderPeople(evt.target.result.id, evt.target.result.name, evt.target.result.email);
                     };
                 }, false);
@@ -277,6 +315,8 @@
     Name:
 </label>
 <input type="text" id="txtName" name="txtName" />
+<br />
+<select name='names' id='names' size='1' />
 <br />
 <input type="button" id="btnSearchByEmail" value="Search by Email" />
 <label for="txtEmail">
