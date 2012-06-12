@@ -1,0 +1,31 @@
+﻿@{
+    ViewBag.Title = "AllNams";
+}
+@section AdditionalScripts
+{
+    <script type="text/javascript" language="javascript">
+        $(document).ready(function () {
+            // Send an AJAX request
+            $.getJSON("../api/nams/",
+                function (data) {
+
+                    // On success, 'data' contains a list of nams.
+                    $.each(data, function (key, val) {
+
+                        // Format the text to display.
+                        var str = val.NamNumber + ': ' + val.Building + "; " + val.Room;
+
+                        // Add a list item for the product.
+                        $('<li/>', { html: str }).appendTo($('#nams'));
+                    });
+                });
+        });
+
+    </script>
+}
+<h2>@ViewBag.Message</h2>
+<div>
+    <h2>
+        AllNams</h2>
+    <ul id='nams' />
+</div>

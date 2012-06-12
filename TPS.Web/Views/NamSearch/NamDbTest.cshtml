@@ -1,0 +1,474 @@
+﻿@{
+    ViewBag.Title = "NamDbTest";
+}
+@section AdditionalScripts
+{
+    <script type="text/javascript" language="javascript">
+
+        var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
+        var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+        var db;
+
+        (function () {
+
+             function initDb() {
+
+                 var request = indexedDB.open("DataNamDB", 1);
+                request.onsuccess = function (evt) {
+                    debugger;
+                    db = request.result;
+
+                    db.onversionchange = function(e) {
+                        // This event is fired when a database is deleted; perhaps may also be fired if you initiated the
+                        // open command with a higher version number.
+                        console.log("Version change triggered, so closing database connection", e.oldVersion, e.newVersion, db);
+                        db.close();
+                    };
+                    console.log("DB opened.", db, evt);
+                    /* Code for ${db.open} */
+
+                };
+
+                 request.onerror = function (evt) {
+                    console.log("IndexedDB error: " + evt.target.errorCode);
+                };
+
+                request.onupgradeneeded = function (evt) {
+                    //debugger;
+                    // This event is fired only if the requested, i.e. new version number is higher than the existing database;
+                    // otherwise, it is not fired, and an error 12 is thrown, which is probably a new version number is earlier
+                    // than requested version number message.
+
+                    var localDB = evt.currentTarget.result;
+
+                    // Check if object store with the same name already exists, and if it does, delete it before recreating it;
+                    // otherwise, an error is thrown: A mutation operation was attempted on a database that did not allow mutations.
+                    // NOTE: This appears to  be the only place where an objectStore can be deleted without throwing a mutation error.
+
+                    if (localDB.objectStoreNames.contains("dataNams")) {
+                        localDB.deleteObjectStore("dataNams");
+                    }
+
+                    // Make sure that an objectStore with the name does not already exist or this fails with an error.
+                    // See above.
+                    var objectStore = localDB.createObjectStore("dataNams", { keyPath: "id", autoIncrement: true });
+
+                    objectStore.createIndex("NamNumber", "NamNumber", { unique: true });
+                    objectStore.createIndex("Building", "Building", { unique: false });
+                    objectStore.createIndex("Department", "Department", { unique: false });
+
+                    for (i in namData) {
+                        objectStore.add(namData[i]);
+                    }
+                };
+            }
+
+            // Output a DataNam from the objectStore to the web page,
+            // including a delete link to remove the record.
+            function renderDataNam(id, nam){
+                var nams = $("#dataNamList")[0];
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+
+                var t = document.createTextNode(id + ": " + nam.NamNumber + "; " + nam.Building + "; " + nam.Room + "; " + nam.Department);
+
+                a.addEventListener("click", function() {
+                    indexedDB.deleteNam(id);
+                }, false);
+
+                a.textContent = " [Delete]";
+                li.appendChild(t);
+                li.appendChild(a);
+                nams.appendChild(li);
+            }
+
+            function loadData() {
+                $.getJSON("../api/nams/", function (data) {
+                    // On success, 'data' contains a list of nams.
+                    window.namData = [];
+                    var namNumberList =  $('select#namNumbers').get(0);
+                    var buildingList =  $('select#buildings').get(0);
+                    var departmentList =  $('select#departments').get(0);
+                    $(namNumberList).empty();
+                    $(namNumberList).append($('<option selected="selected">-- Select a Nam Number --</option>').val(""));
+                    $("namNumberList option[value='']").attr("selected", true);
+
+                    $(buildingList).empty();
+                    $(buildingList).append($('<option selected="selected">-- Select a Building --</option>').val(""));
+                    $("buildingList option[value='']").attr("selected", true);
+
+                    $(departmentList).empty();
+                    $(departmentList).append($('<option selected="selected">-- Select a Department --</option>').val(""));
+                    $("departmentList option[value='']").attr("selected", true);
+
+                    $.each(data, function (key, val) {
+                        window.namData.push({
+                            'NamNumber': val.NamNumber,
+                            'Building': val.Building,
+                            'Room': val.Room,
+                            'Department': val.Department,
+                            'BillingId': val.BillingId,
+                            'Vlan': val.Vlan,
+                            'Status': val.Status,
+                            "Port": val.Port
+                        });
+                        $(namNumberList).append($('<option></option>').val(val.NamNumber).html(val.NamNumber));
+                        $(buildingList).append($('<option></option>').val(val.Building).html(val.Building));
+                        $(departmentList).append($('<option></option>').val(val.Department).html(val.Department));
+
+                    });
+                });
+            }
+
+            function loadNamNumberDropdown() {
+                debugger;
+                var namNumberList =  $('select#namNumbers').get(0);
+                $(namNumberList).empty();
+                $(namNumberList).append($('<option selected="selected">-- Select a Nam Number --</option>').val(""));
+                $("namNumberList option[value='']").attr("selected", true);
+
+                var trans = db.transaction("dataNams", IDBTransaction.READ_WRITE);
+                var store = trans.objectStore("dataNams");
+
+                // Get everything in the store;
+                var cursorRequest = store.openCursor();
+
+                cursorRequest.onsuccess = function(e) {
+                    // debugger;
+                    var result = e.target.result;
+
+                    if (!!result == false)
+                        return;
+
+                    $(namNumberList).append($('<option></option>').val(result.value.NamNumber).html(result.value.NamNumber));
+                    result.continue();
+                };
+            }
+
+             // Once the page content has been loaded, wire up all the buttons, event listeners and database functions:
+            function contentLoaded() {
+                initDb();
+                loadData();
+
+                // Add all the button related event listeners:
+                var btnPrint = document.getElementById("btnPrint");
+                var btnDelete = document.getElementById("btnDelete");
+                var btnDeleteAll = document.getElementById("btnDeleteAll");
+                var btnDeleteDatabase = document.getElementById("btnDeleteDatabase");
+                var btnLoadDatabase = document.getElementById("btnLoadDatabase");
+
+                var btnSearchByNamNumber = document.getElementById("btnSearchByNamNumber");
+                var btnSearchByBuilding = document.getElementById("btnSearchByBuilding");
+                var btnSearchByDepartment = document.getElementById("btnSearchByDepartment");
+                var selectNamNumber =  $('select#namNumbers').get(0);
+
+                debugger;
+                var selectBuilding =  $('select#buildings').get(0);
+
+                var selectDepartment = $('select#departments').get(0);
+
+                selectNamNumber.addEventListener("change", function () {
+                    var output = $("#dataNamList")[0];
+                    output.innerHTML = "";
+                    var namNumber = "";
+
+                    $('select#namNumbers option:selected').each(function () {
+                        //debugger;
+                            namNumber = $(this).val();
+                    });
+
+                    if (namNumber != ""){
+
+                        var objectStore = db.transaction("dataNams").objectStore("dataNams");
+                        var index = objectStore.index("NamNumber");
+                        index.get(namNumber).onsuccess = function (evt) {
+                            //debugger;
+                            renderDataNam(evt.target.result.id, evt.target.result);
+                        };
+                    }
+                }, false);
+
+                selectBuilding.addEventListener("change", function () {
+                    debugger;
+                    var output = $("#dataNamList")[0];
+                    output.innerHTML = "";
+                    var building = "";
+
+                    $('select#buildings option:selected').each(function () {
+                        //debugger;
+                            building = $(this).val();
+                    });
+
+                    if (building != ""){
+
+                        var objectStore = db.transaction("dataNams").objectStore("dataNams");
+                        var index = objectStore.index("Building");
+                        index.get(building).onsuccess = function (evt) {
+                            //debugger;
+                            renderDataNam(evt.target.result.id, evt.target.result);
+                        };
+                    }
+                }, false);
+
+                 selectDepartment.addEventListener("change", function () {
+                    var output = $("#dataNamList")[0];
+                    output.innerHTML = "";
+                    var department = "";
+
+                    $('select#departments option:selected').each(function () {
+                        //debugger;
+                            department = $(this).val();
+                    });
+
+                    if (department != ""){
+
+                        var objectStore = db.transaction("dataNams").objectStore("dataNams");
+                        var index = objectStore.index("Department");
+                        index.get(department).onsuccess = function (evt) {
+                            //debugger;
+                            renderDataNam(evt.target.result.id, evt.target.result);
+                        };
+                    }
+                }, false);
+
+                btnSearchByNamNumber.addEventListener("click", function () {
+                    var output = $("#dataNamList")[0];
+                    output.innerHTML = "";
+                    var namNumber = document.getElementById("txtNamNumber").value;
+
+                    var objectStore = db.transaction("dataNams").objectStore("dataNams");
+                    // Note: Index names are case sensitive!
+                    var index = objectStore.index("NamNumber");
+                    index.get(namNumber).onsuccess = function (evt) {
+                       renderDataNam(evt.target.result.id, evt.target.result);
+                    };
+                }, false);
+
+                btnLoadDatabase.addEventListener("click", function () {
+
+                    loadData();
+
+                    console.log("Trying to delete database");
+                    try {
+                      var dbDeleteRequest = window.indexedDB.deleteDatabase("DataNamDB");
+                      dbDeleteRequest.onsuccess = function(e){
+                        console.log("Database successfully deleted");
+                        /* Code for ${db.open} */
+
+                      };
+                      dbDeleteRequest.onupgradeneeded = function(e){
+                          //debugger;
+                        var db = dbOpenRequest.result;
+                        console.log("Database upgrade needed");
+                        /* Code for ${db.upgrade} */
+                      };
+                      dbDeleteRequest.onerror = function(e){
+                        console.log("Error deleting DB");
+                      };
+                      dbDeleteRequest.onblocked = function(e){
+                        console.log("Deleting DB Blocked. Try closing the database and then deleting it", dbDeleteRequest.error, e.type);
+                      };
+                    } catch (e) {
+                      console.log(e);
+                    }
+
+                }, false);
+
+                btnSearchByBuilding.addEventListener("click", function () {
+                    debugger;
+                    var output = $("#dataNamList")[0];
+                    output.innerHTML = "";
+                    var building = document.getElementById("txtBuilding").value;
+
+                    var objectStore = db.transaction("dataNams").objectStore("dataNams");
+                    var index = objectStore.index("Building");
+                    index.get(building).onsuccess = function (evt) {
+                        debugger;
+                        var test = 0;
+                        renderDataNam(evt.target.result.id, evt.target.result);
+                    };
+                }, false);
+
+                btnSearchByDepartment.addEventListener("click", function () {
+                    var output = $("#dataNamList")[0];
+                    output.innerHTML = "";
+                    var department = document.getElementById("txtDepartment").value;
+
+                    var objectStore = db.transaction("dataNams").objectStore("dataNams");
+                    var index = objectStore.index("Department");
+                    index.get(department).onsuccess = function (evt) {
+                        debugger;
+                        renderDataNam(evt.target.result.id, evt.target.result);
+                    };
+                }, false);
+
+                btnDelete.addEventListener("click", function () {
+                    var id = document.getElementById("txtId").value;
+                    var transaction = db.transaction("dataNams", IDBTransaction.READ_WRITE);
+                    var objectStore = transaction.objectStore("dataNams");
+                    var request = objectStore.delete(id);
+                    request.onsuccess = function(evt) {
+                        // It's gone!
+                    };
+                 }, false);
+
+                btnDeleteAll.addEventListener("click", function () {
+                    var transaction = db.transaction("dataNams", IDBTransaction.READ_WRITE);
+                    var objectStore = transaction.objectStore("dataNams");
+                    var request = objectStore.clear();
+                    request.onsuccess = function (evt) {
+                        // do something after the clear succeeded
+                        $("#printOutput")[0].innerHTML = "";
+                        $("#dataNamList")[0].innerHTML = "";
+                    };
+                 }, false);
+
+                btnDeleteDatabase.addEventListener("click", function () {
+                    console.log("Trying to delete database");
+                    try {
+                      var dbDeleteRequest = window.indexedDB.deleteDatabase("DataNamDB");
+                      dbDeleteRequest.onsuccess = function(e){
+                        console.log("Database successfully deleted");
+                        /* Code for ${db.open} */
+                      };
+                      dbDeleteRequest.onupgradeneeded = function(e){
+                          //debugger;
+                        var db = dbOpenRequest.result;
+                        console.log("Database upgrade needed");
+                        /* Code for ${db.upgrade} */
+                      };
+                      dbDeleteRequest.onerror = function(e){
+                        console.log("Error deleting DB");
+                      };
+                      dbDeleteRequest.onblocked = function(e){
+                        console.log("Deleting DB Blocked. Try closing the database and then deleting it", dbDeleteRequest.error, e.type);
+                      };
+                    } catch (e) {
+                      console.log(e);
+                    }
+                 }, false);
+
+                btnPrint.addEventListener("click", function() {
+
+                    var output = document.getElementById("printOutput");
+                    output.textContent = "";
+
+                    var transaction = db.transaction("dataNams", IDBTransaction.READ_WRITE);
+                    var objectStore = transaction.objectStore("dataNams");
+
+                    var request = objectStore.openCursor();
+                    request.onsuccess = function(evt) {
+                        var cursor = evt.target.result;
+
+                        if (cursor) {
+                            output.innerHTML += "id: " + cursor.key + " is " + cursor.value.NamNumber + "<br />";
+                            cursor.continue();
+                        } else {
+                            console.log("No more entries!");
+                        }
+                    };
+                }, false);
+
+                 // Add all the database, non-button related functions:
+
+                indexedDB.onerror = function(e) {
+                    console.log(e);
+                };
+
+                indexedDB.deleteNam = function(id) {
+                    var trans = db.transaction("dataNams", IDBTransaction.READ_WRITE);
+                    var store = trans.objectStore("dataNams");
+
+                    var request = store.delete(id);
+
+                    request.onsuccess = function(e) {
+                        indexedDB.getAll();
+                    };
+
+                    request.onerror = function(e) {
+                        console.log("Error Deleting: ", e);
+                    };
+                };
+
+                indexedDB.getAll = function() {
+
+                    var dataNams = $("#dataNamList")[0];
+                    dataNams.innerHTML = "";
+
+                    var trans = db.transaction("dataNams", IDBTransaction.READ_WRITE);
+                    var store = trans.objectStore("dataNams");
+
+                    // Get everything in the store;
+                     var cursorRequest = store.openCursor();
+
+                    cursorRequest.onsuccess = function(e) {
+                        var result = e.target.result;
+
+                        if(!!result == false)
+                            return;
+
+                        renderDataNam(result.key, result.value);
+                        result.continue();
+                    };
+
+                    cursorRequest.onerror = indexedDB.onerror;
+                };
+            }
+            window.addEventListener("DOMContentLoaded", contentLoaded, false);
+    })();
+
+    </script>
+}
+<h2>@ViewBag.Message</h2>
+<hr />
+<br />
+<input type="button" id="btnSearchByNamNumber" value="Search by Nam Number" />
+<label for="txtNamNumber">
+    Nam Number:
+</label>
+<input type="text" id="txtNamNumber" name="txtNamNumber" />
+<br />
+<label for="namNumbers">
+    Select a Nam Number to Search for:</label>
+<select name='namNumbers' id='namNumbers' size='1' />
+<br />
+<label for="buildings">
+    Select a Building to Search for:</label>
+<select name='buildings' id='buildings' size='1' />
+<br />
+<label for="departments">
+    Select a Department to Search for:</label>
+<select name='departments' id='departments' size='1' />
+<br />
+<input type="button" id="btnSearchByBuilding" value="Search by Building" />
+<label for="txtBuilding">
+    Building:
+</label>
+<input type="text" id="txtBuilding" name="txtBuilding" />
+<br />
+<input type="button" id="btnSearchByDepartment" value="Search by Department" />
+<label for="txtDepartment">
+    Department:
+</label>
+<input type="text" id="txtDepartment" name="txtDepartment" />
+<br />
+<ul>
+    <li id="dataNamList"></li>
+</ul>
+<br />
+<label for="txtId">
+    Id:
+</label>
+<input type="text" id="txtId" name="txtId" />
+<br />
+<input type="button" id="btnDelete" value="Delete Record by Id" />
+<br />
+<input type="button" id="btnDeleteAll" value="Delete All Records" />
+<br />
+<input type="button" id="btnDeleteDatabase" value="Delete Database" />
+<br />
+<input type="button" id="btnLoadDatabase" value="Load Database" />
+<br />
+<input type="button" id="btnPrint" value="Print objectStore" />
+<br />
+<output id="printOutput"> </output>

@@ -135,5 +135,19 @@ namespace TPS.Web.Controllers
 
             return View();
         }
+
+        public ActionResult AllNams()
+        {
+            ViewBag.Message = "WebAPI test";
+
+            return View();
+        }
+
+        public ActionResult NamDbTest()
+        {
+            ViewBag.Message = "WebAPI with IndexDB test";
+
+            return View();
+        }
     }
 }

@@ -98,7 +98,7 @@
                 var cursorRequest = store.openCursor();
 
                 cursorRequest.onsuccess = function(e) {
-                     debugger;
+                    // debugger;
                     var result = e.target.result;
 
                     if (!!result == false)
@@ -219,7 +219,7 @@
                         /* Code for ${db.open} */
                       };
                       dbDeleteRequest.onupgradeneeded = function(e){
-                          debugger;
+                          //debugger;
                         var db = dbOpenRequest.result;
                         console.log("Database upgrade needed");
                         /* Code for ${db.upgrade} */
@@ -316,6 +316,8 @@
 </label>
 <input type="text" id="txtName" name="txtName" />
 <br />
+<label for="names">
+    Select a Name to Search for:</label>
 <select name='names' id='names' size='1' />
 <br />
 <input type="button" id="btnSearchByEmail" value="Search by Email" />

@@ -27,6 +27,7 @@ namespace TPS.Web
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            // This is used for WebAPI classes:
             routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
@@ -48,6 +49,7 @@ namespace TPS.Web
             RegisterRoutes(RouteTable.Routes);
 
             BundleTable.Bundles.RegisterTemplateBundles();
+            //GlobalConfiguration.Configuration.Formatters.XmlFormatter.UseDataContractSerializer = true;
         }
     }
 }
