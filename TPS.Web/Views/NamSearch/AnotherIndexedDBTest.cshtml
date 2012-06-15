@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "NamDbTest";
+    ViewBag.Title = "AnotherIndexedDBTest";
 }
 @section AdditionalScripts
 {
@@ -15,7 +15,7 @@
 
                  var request = indexedDB.open("DataNamDB", 1);
                 request.onsuccess = function (evt) {
-                    debugger;
+                    //debugger;
                     db = request.result;
 
                     db.onversionchange = function(e) {
@@ -83,12 +83,17 @@
             }
 
             function loadData() {
+                var buildings = new Array();
+                var departments = new Array();
+                var namNumberList =  $('select#namNumbers').get(0);
+                var buildingList =  $('select#buildings').get(0);
+                var departmentList =  $('select#departments').get(0);
+
                 $.getJSON("../api/nams/", function (data) {
+
                     // On success, 'data' contains a list of nams.
                     window.namData = [];
-                    var namNumberList =  $('select#namNumbers').get(0);
-                    var buildingList =  $('select#buildings').get(0);
-                    var departmentList =  $('select#departments').get(0);
+
                     $(namNumberList).empty();
                     $(namNumberList).append($('<option selected="selected">-- Select a Nam Number --</option>').val(""));
                     $("namNumberList option[value='']").attr("selected", true);
@@ -113,15 +118,43 @@
                             "Port": val.Port
                         });
                         $(namNumberList).append($('<option></option>').val(val.NamNumber).html(val.NamNumber));
-                        $(buildingList).append($('<option></option>').val(val.Building).html(val.Building));
-                        $(departmentList).append($('<option></option>').val(val.Department).html(val.Department));
+
+                        debugger;
+                        var notNull = $.trim(val.Building) != "" ? true : false;
+                        var exists = $.inArray(val.Building, buildings) != -1 ? true : false;
+                        if (notNull && !exists)
+                        {
+                            buildings.push(val.Building);
+                            $(buildingList).append($('<option></option>').val(val.Building).html(val.Building));
+                        }
+                        notNull = $.trim(val.Department) != "" ? true : false;
+                        exists = val.Department != "" && $.inArray(val.Department, departments) != -1 ? true : false;
+                        if (notNull && !exists)
+                        {
+                            departments.push(val.Department);
+                            departments.sort();
+                            var myString = "";
+                            $.each(departments, function(i, dept) {
+
+                              alert(myString += ", " + dept);
+
+                            });
+
+                            $(departmentList).append($('<option></option>').val(val.Department).html(val.Department));
+                        }
 
                     });
                 });
+//                departments.sort();
+//                $.each(departments, function(i, val) {
+//                    debugger;
+//                    alert(val);
+//                });
             }
 
-            function loadNamNumberDropdown() {
-                debugger;
+            function loadDropdown() {
+                //debugger;
+                alert("click me");
                 var namNumberList =  $('select#namNumbers').get(0);
                 $(namNumberList).empty();
                 $(namNumberList).append($('<option selected="selected">-- Select a Nam Number --</option>').val(""));
@@ -145,28 +178,65 @@
                 };
             }
 
-             // Once the page content has been loaded, wire up all the buttons, event listeners and database functions:
+            // This method uses an index cursor to get a sorted list of index values
+            // with which to build the select list options.
+            function loadDropdownWitName(selectList, indexName, labelName) {
+                //debugger;
+
+                var uniqueItems = new Array();
+                alert("click me");  // There seems to be a delay needed for the db to init.  TODO: Add an auto delay.
+                $(selectList).empty();
+                $(selectList).append($('<option selected="selected">-- Select a ' + labelName + ' --</option>').val(""));
+                $("selectList option[value='']").attr("selected", true);
+
+                var trans = db.transaction("dataNams");
+                var store = trans.objectStore("dataNams");
+                var index = store.index(indexName);
+
+                // Get everything in the store;
+                var cursorRequest = index.openCursor().onsuccess = function(event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        // cursor.key is a name, like "Bill", and cursor.value is the whole object.
+
+                        var exists = $.inArray(cursor.key, uniqueItems) != -1 ? true : false;
+                        if (!exists)
+                        {
+                            uniqueItems.push(cursor.key);
+                            $(selectList).append($('<option></option>').val(cursor.key).html(cursor.key));
+
+                        }
+                        cursor.continue();
+                    }
+                };
+            };
+
+            // Once the page content has been loaded, wire up all the buttons, event listeners and database functions:
             function contentLoaded() {
                 initDb();
-                loadData();
+                //loadData();
+                loadDropdownWitName($('select#namNumbers').get(0), "NamNumber", "Nam Number");
+                loadDropdownWitName($('select#buildings').get(0), "Building", "Building");
+                loadDropdownWitName($('select#departments').get(0), "Department", "Department");
 
                 // Add all the button related event listeners:
                 var btnPrint = document.getElementById("btnPrint");
-                var btnDelete = document.getElementById("btnDelete");
-                var btnDeleteAll = document.getElementById("btnDeleteAll");
-                var btnDeleteDatabase = document.getElementById("btnDeleteDatabase");
-                var btnLoadDatabase = document.getElementById("btnLoadDatabase");
+                //var btnDelete = document.getElementById("btnDelete");
+                //var btnDeleteAll = document.getElementById("btnDeleteAll");
+                //var btnDeleteDatabase = document.getElementById("btnDeleteDatabase");
+                //var btnLoadDatabase = document.getElementById("btnLoadDatabase");
 
                 var btnSearchByNamNumber = document.getElementById("btnSearchByNamNumber");
-                var btnSearchByBuilding = document.getElementById("btnSearchByBuilding");
-                var btnSearchByDepartment = document.getElementById("btnSearchByDepartment");
+                //var btnSearchByBuilding = document.getElementById("btnSearchByBuilding");
+                //var btnSearchByDepartment = document.getElementById("btnSearchByDepartment");
                 var selectNamNumber =  $('select#namNumbers').get(0);
 
-                debugger;
+                //debugger;
                 var selectBuilding =  $('select#buildings').get(0);
 
                 var selectDepartment = $('select#departments').get(0);
 
+                // This method will return a single data nam using an index "get" (by nam number) request.
                 selectNamNumber.addEventListener("change", function () {
                     var output = $("#dataNamList")[0];
                     output.innerHTML = "";
@@ -188,8 +258,10 @@
                     }
                 }, false);
 
+                // This method will return one or more data nams with a matching building.
+                // It uses an index cursor with an IDBKeyRange of "only" in order to return the just the nams with a building that matches.
                 selectBuilding.addEventListener("change", function () {
-                    debugger;
+                    //debugger;
                     var output = $("#dataNamList")[0];
                     output.innerHTML = "";
                     var building = "";
@@ -203,13 +275,21 @@
 
                         var objectStore = db.transaction("dataNams").objectStore("dataNams");
                         var index = objectStore.index("Building");
-                        index.get(building).onsuccess = function (evt) {
-                            //debugger;
-                            renderDataNam(evt.target.result.id, evt.target.result);
+                        var singleKeyRange = IDBKeyRange.only(building);
+                        // Get everything in the store;
+                        var cursorRequest = index.openCursor(singleKeyRange).onsuccess = function(event) {
+                            var cursor = event.target.result;
+                            if (cursor) {
+                                renderDataNam(cursor.value.id, cursor.value);
+
+                                cursor.continue ();
+                            }
                         };
                     }
                 }, false);
 
+                // This method will return one or more data nams with a matching department.
+                // It uses an index cursor with an IDBKeyRange of "only" in order to return the just the nams with a department that matches.
                  selectDepartment.addEventListener("change", function () {
                     var output = $("#dataNamList")[0];
                     output.innerHTML = "";
@@ -220,17 +300,25 @@
                             department = $(this).val();
                     });
 
-                    if (department != ""){
+                    if (department != "") {
 
                         var objectStore = db.transaction("dataNams").objectStore("dataNams");
                         var index = objectStore.index("Department");
-                        index.get(department).onsuccess = function (evt) {
-                            //debugger;
-                            renderDataNam(evt.target.result.id, evt.target.result);
+                        var singleKeyRange = IDBKeyRange.only(department);
+                        // Get everything in the store;
+                        var cursorRequest = index.openCursor(singleKeyRange).onsuccess = function(event) {
+                            var cursor = event.target.result;
+                            if (cursor) {
+
+                                renderDataNam(cursor.value.id, cursor.value);
+
+                                cursor.continue();
+                            }
                         };
                     }
-                }, false);
+                 }, false);
 
+                // This method will return a single data nam using an index "get" (by nam number) request.
                 btnSearchByNamNumber.addEventListener("click", function () {
                     var output = $("#dataNamList")[0];
                     output.innerHTML = "";
@@ -244,109 +332,109 @@
                     };
                 }, false);
 
-                btnLoadDatabase.addEventListener("click", function () {
+//                btnLoadDatabase.addEventListener("click", function () {
 
-                    loadData();
+//                    loadData();
 
-                    console.log("Trying to delete database");
-                    try {
-                      var dbDeleteRequest = window.indexedDB.deleteDatabase("DataNamDB");
-                      dbDeleteRequest.onsuccess = function(e){
-                        console.log("Database successfully deleted");
-                        /* Code for ${db.open} */
+//                    console.log("Trying to delete database");
+//                    try {
+//                      var dbDeleteRequest = window.indexedDB.deleteDatabase("DataNamDB");
+//                      dbDeleteRequest.onsuccess = function(e){
+//                        console.log("Database successfully deleted");
+//                        /* Code for ${db.open} */
 
-                      };
-                      dbDeleteRequest.onupgradeneeded = function(e){
-                          //debugger;
-                        var db = dbOpenRequest.result;
-                        console.log("Database upgrade needed");
-                        /* Code for ${db.upgrade} */
-                      };
-                      dbDeleteRequest.onerror = function(e){
-                        console.log("Error deleting DB");
-                      };
-                      dbDeleteRequest.onblocked = function(e){
-                        console.log("Deleting DB Blocked. Try closing the database and then deleting it", dbDeleteRequest.error, e.type);
-                      };
-                    } catch (e) {
-                      console.log(e);
-                    }
+//                      };
+//                      dbDeleteRequest.onupgradeneeded = function(e){
+//                          //debugger;
+//                        var db = dbOpenRequest.result;
+//                        console.log("Database upgrade needed");
+//                        /* Code for ${db.upgrade} */
+//                      };
+//                      dbDeleteRequest.onerror = function(e){
+//                        console.log("Error deleting DB");
+//                      };
+//                      dbDeleteRequest.onblocked = function(e){
+//                        console.log("Deleting DB Blocked. Try closing the database and then deleting it", dbDeleteRequest.error, e.type);
+//                      };
+//                    } catch (e) {
+//                      console.log(e);
+//                    }
 
-                }, false);
+//                }, false);
 
-                btnSearchByBuilding.addEventListener("click", function () {
-                    debugger;
-                    var output = $("#dataNamList")[0];
-                    output.innerHTML = "";
-                    var building = document.getElementById("txtBuilding").value;
+//                btnSearchByBuilding.addEventListener("click", function () {
+//                    debugger;
+//                    var output = $("#dataNamList")[0];
+//                    output.innerHTML = "";
+//                    var building = document.getElementById("txtBuilding").value;
 
-                    var objectStore = db.transaction("dataNams").objectStore("dataNams");
-                    var index = objectStore.index("Building");
-                    index.get(building).onsuccess = function (evt) {
-                        debugger;
-                        var test = 0;
-                        renderDataNam(evt.target.result.id, evt.target.result);
-                    };
-                }, false);
+//                    var objectStore = db.transaction("dataNams").objectStore("dataNams");
+//                    var index = objectStore.index("Building");
+//                    index.get(building).onsuccess = function (evt) {
+//                        debugger;
+//                        var test = 0;
+//                        renderDataNam(evt.target.result.id, evt.target.result);
+//                    };
+//                }, false);
 
-                btnSearchByDepartment.addEventListener("click", function () {
-                    var output = $("#dataNamList")[0];
-                    output.innerHTML = "";
-                    var department = document.getElementById("txtDepartment").value;
+//                btnSearchByDepartment.addEventListener("click", function () {
+//                    var output = $("#dataNamList")[0];
+//                    output.innerHTML = "";
+//                    var department = document.getElementById("txtDepartment").value;
 
-                    var objectStore = db.transaction("dataNams").objectStore("dataNams");
-                    var index = objectStore.index("Department");
-                    index.get(department).onsuccess = function (evt) {
-                        debugger;
-                        renderDataNam(evt.target.result.id, evt.target.result);
-                    };
-                }, false);
+//                    var objectStore = db.transaction("dataNams").objectStore("dataNams");
+//                    var index = objectStore.index("Department");
+//                    index.get(department).onsuccess = function (evt) {
+//                        debugger;
+//                        renderDataNam(evt.target.result.id, evt.target.result);
+//                    };
+//                }, false);
 
-                btnDelete.addEventListener("click", function () {
-                    var id = document.getElementById("txtId").value;
-                    var transaction = db.transaction("dataNams", IDBTransaction.READ_WRITE);
-                    var objectStore = transaction.objectStore("dataNams");
-                    var request = objectStore.delete(id);
-                    request.onsuccess = function(evt) {
-                        // It's gone!
-                    };
-                 }, false);
+//                btnDelete.addEventListener("click", function () {
+//                    var id = document.getElementById("txtId").value;
+//                    var transaction = db.transaction("dataNams", IDBTransaction.READ_WRITE);
+//                    var objectStore = transaction.objectStore("dataNams");
+//                    var request = objectStore.delete(id);
+//                    request.onsuccess = function(evt) {
+//                        // It's gone!
+//                    };
+//                 }, false);
 
-                btnDeleteAll.addEventListener("click", function () {
-                    var transaction = db.transaction("dataNams", IDBTransaction.READ_WRITE);
-                    var objectStore = transaction.objectStore("dataNams");
-                    var request = objectStore.clear();
-                    request.onsuccess = function (evt) {
-                        // do something after the clear succeeded
-                        $("#printOutput")[0].innerHTML = "";
-                        $("#dataNamList")[0].innerHTML = "";
-                    };
-                 }, false);
+//                btnDeleteAll.addEventListener("click", function () {
+//                    var transaction = db.transaction("dataNams", IDBTransaction.READ_WRITE);
+//                    var objectStore = transaction.objectStore("dataNams");
+//                    var request = objectStore.clear();
+//                    request.onsuccess = function (evt) {
+//                        // do something after the clear succeeded
+//                        $("#printOutput")[0].innerHTML = "";
+//                        $("#dataNamList")[0].innerHTML = "";
+//                    };
+//                 }, false);
 
-                btnDeleteDatabase.addEventListener("click", function () {
-                    console.log("Trying to delete database");
-                    try {
-                      var dbDeleteRequest = window.indexedDB.deleteDatabase("DataNamDB");
-                      dbDeleteRequest.onsuccess = function(e){
-                        console.log("Database successfully deleted");
-                        /* Code for ${db.open} */
-                      };
-                      dbDeleteRequest.onupgradeneeded = function(e){
-                          //debugger;
-                        var db = dbOpenRequest.result;
-                        console.log("Database upgrade needed");
-                        /* Code for ${db.upgrade} */
-                      };
-                      dbDeleteRequest.onerror = function(e){
-                        console.log("Error deleting DB");
-                      };
-                      dbDeleteRequest.onblocked = function(e){
-                        console.log("Deleting DB Blocked. Try closing the database and then deleting it", dbDeleteRequest.error, e.type);
-                      };
-                    } catch (e) {
-                      console.log(e);
-                    }
-                 }, false);
+//                btnDeleteDatabase.addEventListener("click", function () {
+//                    console.log("Trying to delete database");
+//                    try {
+//                      var dbDeleteRequest = window.indexedDB.deleteDatabase("DataNamDB");
+//                      dbDeleteRequest.onsuccess = function(e){
+//                        console.log("Database successfully deleted");
+//                        /* Code for ${db.open} */
+//                      };
+//                      dbDeleteRequest.onupgradeneeded = function(e){
+//                          //debugger;
+//                        var db = dbOpenRequest.result;
+//                        console.log("Database upgrade needed");
+//                        /* Code for ${db.upgrade} */
+//                      };
+//                      dbDeleteRequest.onerror = function(e){
+//                        console.log("Error deleting DB");
+//                      };
+//                      dbDeleteRequest.onblocked = function(e){
+//                        console.log("Deleting DB Blocked. Try closing the database and then deleting it", dbDeleteRequest.error, e.type);
+//                      };
+//                    } catch (e) {
+//                      console.log(e);
+//                    }
+//                 }, false);
 
                 btnPrint.addEventListener("click", function() {
 
@@ -426,50 +514,28 @@
 <label for="txtNamNumber">
     Nam Number:
 </label>
-<input type="text" id="txtNamNumber" name="txtNamNumber" />
+<input type="text" id="txtNamNumber" name="txtNamNumber"></input>
 <br />
 <label for="namNumbers">
-    Select a Nam Number to Search for:</label>
-<select name='namNumbers' id='namNumbers' size='1' />
+    Select a Nam to Search for:</label>
+<select name='namNumbers' id='namNumbers' size='1'>
+</select>
 <br />
 <label for="buildings">
     Select a Building to Search for:</label>
-<select name='buildings' id='buildings' size='1' />
+<select name='buildings' id='buildings' size='1'>
+</select>
 <br />
 <label for="departments">
     Select a Department to Search for:</label>
 <select name='departments' id='departments' size='1'>
 </select>
 <br />
-<input type="button" id="btnSearchByBuilding" value="Search by Building" />
-<label for="txtBuilding">
-    Building:
-</label>
-<input type="text" id="txtBuilding" name="txtBuilding" />
-<br />
-<input type="button" id="btnSearchByDepartment" value="Search by Department" />
-<label for="txtDepartment">
-    Department:
-</label>
-<input type="text" id="txtDepartment" name="txtDepartment" />
+<input type="button" id="btnPrint" value="Print objectStore" />
 <br />
 <ul>
-    <li id="dataNamList"></li>
+    <div id="dataNamList">
+    </div>
 </ul>
-<br />
-<label for="txtId">
-    Id:
-</label>
-<input type="text" id="txtId" name="txtId" />
-<br />
-<input type="button" id="btnDelete" value="Delete Record by Id" />
-<br />
-<input type="button" id="btnDeleteAll" value="Delete All Records" />
-<br />
-<input type="button" id="btnDeleteDatabase" value="Delete Database" />
-<br />
-<input type="button" id="btnLoadDatabase" value="Load Database" />
-<br />
-<input type="button" id="btnPrint" value="Print objectStore" />
 <br />
 <output id="printOutput"> </output>

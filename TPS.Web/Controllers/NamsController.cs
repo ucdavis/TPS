@@ -31,7 +31,6 @@ namespace TPS.Web.Controllers
 
         public IEnumerable<DataNamFlattened> GetAllNams()
         {
-            //var nams = _dataNamRepository.Queryable.AsQueryable().Where(x => x.NamNumber == "10011D").OrderBy(x => x.NamNumber);
             var nams = _dataNamRepository.GetAll().OrderBy(x => x.NamNumber);
 
             return nams;

@@ -149,5 +149,12 @@ namespace TPS.Web.Controllers
 
             return View();
         }
+
+        public ActionResult AnotherIndexedDBTest()
+        {
+            ViewBag.Message = "Another IndexedDB Test";
+
+            return View();
+        }
     }
 }
