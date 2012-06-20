@@ -413,6 +413,9 @@
   <ItemGroup>
     <Content Include="Views\NamSearch\AnotherIndexedDBTest.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\NamSearch\MultipleSelectionIndexedDbTest.cshtml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -430,7 +433,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>20146</DevelopmentServerPort>
+          <DevelopmentServerPort>25446</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>

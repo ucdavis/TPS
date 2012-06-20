@@ -8,7 +8,7 @@
  *
  * Example:
  *
- *   let query = Index("make").eq("BMW");
+ *   var query = Index("make").eq("BMW");
  *
  */
 function Index(name) {
@@ -27,8 +27,8 @@ function Index(name) {
     between: queryMaker("between"),
     betweeq: queryMaker("betweeq"),
     oneof:   function oneof() {
-      let values = Array.slice(arguments);
-      let query = IndexQuery(name, "eq", [values.shift()]);
+      var values = Array.slice(arguments);
+      var query = IndexQuery(name, "eq", [values.shift()]);
       while (values.length) {
         query = query.or(IndexQuery(name, "eq", [values.shift()]));
       }
@@ -42,8 +42,8 @@ function Index(name) {
  * result object. This is typically either a cursor or a result array.
  */
 function notifySuccess(request, result) {
-  let event = {type: "success",
-               target: request}; //TODO complete event interface
+  var event = {type: "success",
+               target: request}; //TODO compvare event interface
   request.readyState = IDBRequest.DONE;
   request.result = result;
   if (typeof request.onsuccess == "function") {
@@ -55,26 +55,26 @@ function notifySuccess(request, result) {
  * Create a cursor object.
  */
 function Cursor(store, request, keys, keyOnly) {
-  let cursor = {
+  var cursor = {
     continue: function continue_() {
       if (!keys.length) {
         notifySuccess(request, undefined);
         return;
       }
-      let key = keys.shift();
+      var key = keys.shift();
       if (keyOnly) {
         cursor.key = key;
         notifySuccess(request, cursor);
         return;
       }
-      let r = store.get(key);
+      var r = store.get(key);
       r.onsuccess = function onsuccess() {
         cursor.key = key;
         cursor.value = r.result;
         notifySuccess(request, cursor);
       };
     }
-    //TODO complete cursor interface
+    //TODO compvare cursor interface
   };
   return cursor;
 }
@@ -88,7 +88,7 @@ function Request() {
     onsuccess: null,
     onerror: null,
     readyState: IDBRequest.LOADING
-    // TODO complete request interface
+    // TODO compvare request interface
   };
 }
 
@@ -99,9 +99,9 @@ function Request() {
  * results are available, and notify the first 'success' event.
  */
 function CursorRequest(store, queryFunc, keyOnly) {
-  let request = Request();
+  var request = Request();
   queryFunc(store, function (keys) {
-    let cursor = Cursor(store, request, keys, keyOnly);
+    var cursor = Cursor(store, request, keys, keyOnly);
     cursor.continue();
   });
   return request;
@@ -114,15 +114,15 @@ function CursorRequest(store, queryFunc, keyOnly) {
  * notify the 'success' event.
  */
 function ResultRequest(store, queryFunc, keyOnly) {
-  let request = Request();
+  var request = Request();
   queryFunc(store, function (keys) {
     if (keyOnly || !keys.length) {
       notifySuccess(request, keys);
       return;
     }
-    let results = [];
+    var results = [];
     function getNext() {
-      let r = store.get(keys.shift());
+      var r = store.get(keys.shift());
       r.onsuccess = function onsuccess() {
         results.push(r.result);
         if (!keys.length) {
@@ -143,13 +143,12 @@ function ResultRequest(store, queryFunc, keyOnly) {
  * produce results from an index, combine results from other queries, etc.
  */
 function Query(queryFunc, toString) {
-
-  let query = {
-
+  var query = {
     // Sadly we need to expose this to make Intersection and Union work :(
     _queryFunc: queryFunc,
 
     and: function and(query2) {
+        debugger;
       return Intersection(query, query2);
     },
 
@@ -182,15 +181,15 @@ function Query(queryFunc, toString) {
  * Create a query object that queries an index.
  */
 function IndexQuery(indexName, operation, values) {
-  let negate = false;
-  let op = operation;
+  var negate = false;
+  var op = operation;
   if (op == "neq") {
     op = "eq";
     negate = true;
   }
 
   function makeRange() {
-    let range;
+    var range;
     switch (op) {
       case "eq":
         range = IDBKeyRange.only(values[0]);
@@ -219,11 +218,11 @@ function IndexQuery(indexName, operation, values) {
   }
 
   function queryKeys(store, callback) {
-    let index = store.index(indexName);
-    let range = makeRange();
-    let request = index.getAllKeys(range);
+    var index = store.index(indexName);
+    var range = makeRange();
+    var request = index.getAllKeys(range);
     request.onsuccess = function onsuccess(event) {
-      let result = request.result;
+      var result = request.result;
       if (!negate) {
         callback(result);
         return;
@@ -233,13 +232,13 @@ function IndexQuery(indexName, operation, values) {
       // subtract the original result from it.
       request = index.getAllKeys();
       request.onsuccess = function onsuccess(event) {
-        let all = request.result;
+        var all = request.result;
         callback(arraySub(all, result));
       };
     };
   }
 
-  let args = arguments;
+  var args = arguments;
   function toString() {
     return "IndexQuery(" + Array.slice(args).toSource().slice(1, -1) + ")";
   }
@@ -251,6 +250,7 @@ function IndexQuery(indexName, operation, values) {
  * Create a query object that performs the intersection of two given queries.
  */
 function Intersection(query1, query2) {
+    debugger;
   function queryKeys(store, callback) {
     query1._queryFunc(store, function (keys1) {
       query2._queryFunc(store, function (keys2) {
@@ -284,7 +284,6 @@ function Union(query1, query2) {
 
   return Query(queryKeys, toString);
 }
-
 
 function arraySub(minuend, subtrahend) {
   if (!minuend.length || !subtrahend.length) {

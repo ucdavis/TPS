@@ -156,5 +156,12 @@ namespace TPS.Web.Controllers
 
             return View();
         }
+
+        public ActionResult MultipleSelectionIndexedDbTest()
+        {
+            ViewBag.Message = "Multiple Selection IndexedDB Test";
+
+            return View();
+        }
     }
 }
