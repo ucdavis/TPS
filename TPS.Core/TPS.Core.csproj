@@ -56,8 +56,10 @@
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="Domain\Building.cs" />
+    <Compile Include="Domain\BuildingFlattened.cs" />
     <Compile Include="Domain\College.cs" />
     <Compile Include="Domain\BillingId.cs" />
+    <Compile Include="Domain\DepartmentFlattened.cs" />
     <Compile Include="Domain\DataNamFlattened.cs" />
     <Compile Include="Domain\DataNam.cs" />
     <Compile Include="Domain\Department.cs" />
@@ -67,13 +69,17 @@
     <Compile Include="Domain\Subnet.cs" />
     <Compile Include="Domain\TechContact.cs" />
     <Compile Include="Domain\Vlan.cs" />
+    <Compile Include="Domain\VlanFlattened.cs" />
     <Compile Include="Domain\VlanContact.cs" />
     <Compile Include="Mappings\BuildingMap.cs" />
+    <Compile Include="Mappings\BuildingFlattenedMap.cs" />
     <Compile Include="Mappings\CollegeMap.cs" />
     <Compile Include="Mappings\BillingIdMap.cs" />
     <Compile Include="Mappings\DataNamMap.cs" />
     <Compile Include="Mappings\DataNamFlattenedMap.cs" />
+    <Compile Include="Mappings\VlanFlattenedMap.cs" />
     <Compile Include="Mappings\DepartmentMap.cs" />
+    <Compile Include="Mappings\DepartmentFlattenedMap.cs" />
     <Compile Include="Mappings\DivisionMap.cs" />
     <Compile Include="Mappings\MaskMap.cs" />
     <Compile Include="Mappings\StatusCodeMap.cs" />

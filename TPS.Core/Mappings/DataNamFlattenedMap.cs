@@ -16,6 +16,7 @@ namespace TPS.Core.Mappings
             Map(x => x.Building);
             Map(x => x.Room);
             Map(x => x.Department);
+            Map(x => x.DepartmentNumber);
             //Map(x => x.CaanZone);
             Map(x => x.BillingId);
             Map(x => x.Vlan);

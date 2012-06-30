@@ -163,5 +163,19 @@ namespace TPS.Web.Controllers
 
             return View();
         }
+
+        public ActionResult LocalStorageDbTest()
+        {
+            ViewBag.Message = "Local Storage DB Test";
+
+            return View();
+        }
+
+        public ActionResult GlobalArrayTest()
+        {
+            ViewBag.Message = "Global Array Test";
+
+            return View();
+        }
     }
 }

@@ -1,0 +1,639 @@
+﻿@{
+    ViewBag.Title = "LocalStorageDbTest";
+}
+@section AdditionalScripts
+{
+    <script type="text/javascript" language="javascript">
+        var db;
+        var id = "723N";
+        (function () {
+
+            function initDb() {
+
+                db = localStorage;
+                if (db === undefined) {
+                    alert("local storage is undefined!");
+
+                }
+                else {
+                    //debugger;
+                    var items = JSON.parse(db.getItem("dataNams"));
+
+                    if (items === undefined || items == null) {
+                        loadNamData();
+                    }
+                    else {
+                        window.namData = items;
+                    }
+
+                    items = JSON.parse(db.getItem("buildings"));
+                    if (items === undefined || items == null) {
+                        loadBuildingData();
+
+                    }
+                    else {
+                        window.buildingData = items;
+                    }
+
+                    //debugger;
+                    items = JSON.parse(db.getItem("departments"));
+                    if (items === undefined || items == null) {
+
+                        loadDepartmentData();
+
+                    } else {
+                        window.departmentData = items;
+                    }
+
+                    items = JSON.parse(db.getItem("vlans"));
+                    if (items === undefined || items == null) {
+
+                        loadVlanData();
+
+                    } else {
+                        window.vlanData = items;
+                    }
+
+                }
+
+            }
+
+            function loadVlanData() {
+                //debugger;
+                // get vlans:
+                $.getJSON("../api/vlans/", function (data) {
+                    // On success, 'data' contains a list of vlans.
+                    window.vlanData = [];
+                    //debugger;
+                    $.each(data, function (key, val) {
+                        //debugger;
+                        var myObj = new Object();
+                        myObj.id = val.Vlan;
+                        myObj.item = {
+                            'Vlan': val.Vlan
+                        };
+                        //debugger;
+                        window.vlanData.push(myObj);
+                    });
+                });
+                //debugger;
+
+            }
+
+            function loadDepartmentData() {
+                //debugger;
+                // get departments:
+                $.getJSON("../api/departments/", function (data) {
+                    // On success, 'data' contains a list of departments.
+                    window.departmentData = [];
+                    //debugger;
+                    $.each(data, function (key, val) {
+                        //debugger;
+                        var myObj = new Object();
+                        myObj.id = val.DepartmentNumber;
+                        myObj.item = {
+
+                            'Department': val.Department,
+                            'DepartmentNumber': val.DepartmentNumber
+                        };
+                        //debugger;
+                        window.departmentData.push(myObj);
+                    });
+                });
+                //debugger;
+
+            }
+
+            function loadNamData() {
+                $.getJSON("../api/nams/", function (data) {
+
+                    // On success, 'data' contains a list of nams.
+                    window.namData = [];
+
+                    $.each(data, function (key, val) {
+
+                        var myObj = new Object();
+                        myObj.id = val.NamNumber;
+                        myObj.item = {
+                            'NamNumber': val.NamNumber,
+                            'Building': val.Building,
+                            'Room': val.Room,
+                            'Department': val.Department,
+                            'DepartmentNumber': val.DepartmentNumber,
+                            'BillingId': val.BillingId,
+                            'Vlan': val.Vlan,
+                            'Status': val.Status,
+                            "Port": val.Port
+                        };
+                        window.namData.push(myObj);
+                    });
+                });
+                debugger;
+
+            }
+
+            function loadBuildingData() {
+                $.getJSON("../api/buildings/", function (data) {
+
+                    // On success, 'data' contains a list of buildings.
+                    window.buildingData = [];
+
+                    $.each(data, function (key, val) {
+
+                        var myObj = new Object();
+                        myObj.id = val.Building;
+                        myObj.item = {
+                            'Building': val.Building
+                        };
+                        window.buildingData.push(myObj);
+                    });
+                });
+
+            }
+
+            function loadData() {
+
+                // get Nams:
+                loadNamData();
+
+                // get vlans:
+                loadVlanData();
+
+                // get buildings:
+                loadBuildingData();
+
+                //get departments:
+                loadDepartmentData();
+
+                loadDropdownWitName($('select#vlanList').get(0), window.vlanData, "Vlan");
+                loadDropdownWitName($('select#buildingList').get(0), window.buildingData, "Building");
+                loadDropdownWitName($('select#departmentList').get(0), window.departmentData, "Department");
+
+            }
+
+            // This method uses an index cursor to get a sorted list of index values
+            // with which to build the select list options.
+            function loadDropdownWitName(selectList, selectArray, labelName) {
+                debugger;
+                $(selectList).empty();
+                $(selectList).append($('<option selected="selected">-- Select a ' + labelName + ' --</option>').val(""));
+                $("selectList option[value='']").attr("selected", true);
+
+                for (var s = 0; s < selectArray.length; s++) {
+                    //debugger;
+                    var id = selectArray[s].id;
+                    var item = selectArray[s].item;
+
+                    $(selectList).append($('<option></option>').val(id).html(item[labelName]));
+                }
+
+            };
+
+            // Output an item from local storage to the web page,
+            // including a delete link to remove the record.
+            function renderNam(item, outputElement) {
+                //debugger;
+                if (outputElement === undefined) {
+                    outputElement = $("#output")[0];
+                }
+
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+
+                var t = document.createTextNode("NamNumber: " + item.NamNumber + "; " + item.Building + "; " + item.Room + (item.Vlan != null ? "; " + item.Vlan : "") + (item.Department != null ? "; " + item.Department : "") + (item.BillingId != null ? "; " + item.BillingId : ""));
+
+                a.addEventListener("click", function () {
+                    deleteItem(item.NamNumber);
+                }, false);
+
+                a.textContent = " [Delete]";
+                li.appendChild(t);
+                li.appendChild(a);
+                outputElement.appendChild(li);
+            }
+
+            function renderBuilding(item, outputElement) {
+                //debugger;
+                if (outputElement === undefined) {
+                    outputElement = $("#output")[0];
+                }
+
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+
+                var t = document.createTextNode("Building: " + item.Building);
+
+                a.addEventListener("click", function () {
+                    deleteItem(item.Building);
+                }, false);
+
+                a.textContent = " [Delete]";
+                li.appendChild(t);
+                li.appendChild(a);
+                outputElement.appendChild(li);
+            }
+
+            function renderDepartment(item, outputElement) {
+                //debugger;
+                if (outputElement === undefined) {
+                    outputElement = $("#output")[0];
+                }
+
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+
+                var t = document.createTextNode("Department: " + item.Department);
+
+                a.addEventListener("click", function () {
+                    deleteItem(item.DepartmentNumber);
+                }, false);
+
+                a.textContent = " [Delete]";
+                li.appendChild(t);
+                li.appendChild(a);
+                outputElement.appendChild(li);
+            }
+
+            function getAll() {
+                //debugger;
+                var output = $("#output")[0];
+                output.innerHTML = "";
+
+                var namData = window.namData;
+                for (var i = 0; i < namData.length; i++) {
+                    renderNam(namData[i].item, output);
+                }
+
+                //                var namData = JSON.parse(db.getItem("dataNams"));
+                //                for (var i = 0; i < namData.length; i++) {
+                //                    renderNam(namData[i].item, output);
+                //                }
+
+                //                var buildingData = JSON.parse(db.getItem("buildings"));
+                //                for (var b = 0; b < buildingData.length; b++) {
+                //                    renderBuilding(buildingData[b].item, output);
+                //                }
+
+                //                var departmentData = JSON.parse(db.getItem("departments"));
+                //                for (var d = 0; d < departmentData.length; d++) {
+                //                    renderDepartment(departmentData[d].item, output);
+                //                }
+
+                //                for (var i = 0; i < db.length; i++) {
+                //                    renderItem(JSON.parse(db.getItem(db.key(i))), output);
+                //                }
+            }
+
+            function deleteItem(id) {
+                //debugger;
+
+                db.removeItem(id);
+                getAll();
+            };
+
+            function findNam(namNumber) {
+                //debugger;
+                var retval = new Array();
+
+                $.each(window.namData, function (key, val) {
+                    if (val.id == namNumber) {
+                        //debugger;
+                        retval.push(val.item);
+                    }
+                });
+
+                return retval;
+            };
+
+            // Given an id and a field name, return an array of nams whose values match the id provided:
+            // This works for a single field only.
+            function find(id, fieldName) {
+                //debugger;
+                var retval = new Array();
+
+                $.each(window.namData, function (key, val) {
+
+                    if (fieldName == "Building") {
+                        if (val.item.Building == id) {
+                            retval.push(val.item);
+                        }
+                    }
+                    else if (fieldName == "Department") {
+                        //debugger;
+                        if (val.item.DepartmentNumber == id) {
+                            retval.push(val.item);
+                        }
+                    }
+                    else if (fieldName == "Vlan") {
+                        if (val.item.Vlan == id) {
+                            retval.push(val.item);
+                        }
+                    }
+                    else {
+                        if (val.id == id) {
+                            //debugger;
+                            retval.push(val.item);
+                        }
+                    }
+
+                });
+
+                return retval;
+            };
+
+            function isInArray(obj, array) {
+                var retval = false;
+                ///debugger;
+                if (array === undefined && obj === undefined) {
+
+                }
+                else {
+                    $.each(array, function (i, val) {
+                        if (obj.id == val.Id) {
+                            retval = true;
+
+                        }
+                    });
+                }
+                return retval;
+            }
+
+            function contentLoaded() {
+                initDb();
+                //                var item = JSON.parse(db.getItem(id));
+                //                renderItem(item, $('#output')[0]);
+
+                // Add all the button related event listeners:
+                var btnPrint = $("#btnPrint")[0];
+                var btnLoadData = $("#btnLoadData")[0];
+                var btnFindNam = $("#btnFindNam")[0];
+                var btnFindNams = document.getElementById("btnFindNams");
+                var selectVlan = $('select#vlanList').get(0);
+                var selectBuilding = $('select#buildingList').get(0);
+                var selectDepartment = $('select#departmentList').get(0);
+
+                loadDropdownWitName($(selectBuilding), window.buildingData, "Building");
+                loadDropdownWitName($(selectDepartment), window.departmentData, "Department");
+                loadDropdownWitName($(selectVlan), window.vlanData, "Vlan");
+
+                btnPrint.addEventListener("click", function () {
+                    //debugger;
+                    var output = $("#output")[0];
+                    output.innerHTML = "";
+                    getAll();
+
+                }, false);
+
+                btnLoadData.addEventListener("click", function () {
+                    debugger;
+                    db.clear();
+                    loadData();
+                    // debugger;
+                    var key = "dataNams";
+                    var items = window.namData;
+                    db.setItem(key, JSON.stringify(items));
+
+                    //                    for (var i = 0; i < items.length; i++) {
+                    //                        var key = items[i].id;
+                    //                        var item = items[i].item;
+                    //                        db.setItem(key, JSON.stringify(item));
+                    //                    }
+                    key = "buildings";
+                    items = window.buildingData;
+
+                    db.setItem(key, JSON.stringify(items));
+
+                    key = "departments";
+                    items = window.departmentData;
+
+                    db.setItem(key, JSON.stringify(items));
+                }, false);
+
+                btnFindNam.addEventListener("click", function () {
+                    //debugger;
+                    var output = $("#output")[0];
+                    output.innerHTML = "";
+                    var namNumber = $("#txtNamNumber")[0].value;
+                    var dataNams = find(namNumber, "NamNumber");
+                    for (var d = 0; d < dataNams.length; d++) {
+                        renderNam(dataNams[d], output);
+                    }
+
+                }, false);
+
+                selectBuilding.addEventListener("change", function () {
+                    //debugger;
+                    var output = $("#output")[0];
+                    output.innerHTML = "";
+                    var building = "";
+
+                    $('select#buildingList option:selected').each(function () {
+                        //debugger;
+                        building = $(this).val();
+                    });
+
+                    if (building != "") {
+
+                        var buildings = find(building, "Building");
+                        for (var b = 0; b < buildings.length; b++) {
+                            renderNam(buildings[b], output);
+                        }
+
+                    }
+                }, false);
+
+                selectVlan.addEventListener("change", function () {
+                    //debugger;
+                    var output = $("#output")[0];
+                    output.innerHTML = "";
+                    var vlan = "";
+
+                    $('select#vlanList option:selected').each(function () {
+                        //debugger;
+                        vlan = $(this).val();
+                    });
+
+                    if (vlan != "") {
+
+                        var vlans = find(vlan, "Vlan");
+                        for (var v = 0; v < vlans.length; v++) {
+                            renderNam(vlans[v], output);
+                        }
+
+                    }
+                }, false);
+
+                selectDepartment.addEventListener("change", function () {
+                    //debugger;
+                    var output = $("#output")[0];
+                    output.innerHTML = "";
+                    var department = "";
+
+                    $('select#departmentList option:selected').each(function () {
+                        //debugger;
+                        department = $(this).val();
+                    });
+
+                    if (department != "") {
+
+                        var departments = find(department, "Department");
+                        for (var b = 0; b < departments.length; b++) {
+                            renderNam(departments[b], output);
+                        }
+
+                    }
+                }, false);
+
+                // This method will return one or more data nams using an index "get" (by nam number) request.
+                btnFindNams.addEventListener("click", function () {
+                    //debugger;
+                    var output = $("#findNamsList")[0];
+                    output.innerHTML = "";
+                    var namNumber = document.getElementById("txtNamNumber").value;
+                    var hasNamNumber = ($.trim(namNumber) != "" ? true : false);
+
+                    var roomNumber = document.getElementById("txtRoomNumber").value;
+                    var hasRoomNumber = ($.trim(roomNumber) != "" ? true : false);
+
+                    var vlan = "";
+                    $('select#vlanList option:selected').each(function () {
+                        //debugger;
+                        vlan = $(this).val();
+                    });
+                    var hasVlan = ($.trim(vlan) != "" ? true : false);
+                    var building = "";
+                    $('select#buildingList option:selected').each(function () {
+                        //debugger;
+                        building = $(this).val();
+                    });
+                    var hasBuilding = ($.trim(building) != "" ? true : false);
+
+                    var department = "";
+                    $('select#departmentList option:selected').each(function () {
+                        department = $(this).val();
+                    });
+                    var hasDepartment = ($.trim(department) != "" ? true : false);
+
+                    var hasSearchParameters = hasNamNumber || hasRoomNumber || hasVlan || hasBuilding || hasDepartment
+                                          ? true
+                                          : false;
+                    // Quick test to verify that all of the  inputs have been detected properly.
+                    //alert("Has search params: " + hasSearchParameters + "; Nam: " + hasNamNumber + " - " + namNumber + "; Room: "  + hasRoomNumber + " - " + roomNumber + "; VLAN: " + hasVlan + " - " + vlan + "; Building: " + hasBuilding + " - " +  building + "; Department: " + hasDepartment + " - " + department);
+
+                    // First test is to see if we can get the queries linked properly to use multiple indexes:
+                    if (hasSearchParameters) {
+
+                        // Don't do anything unless there's something to search for
+                        var resultSets = new Array();  // contains arrays by index names of all results from queries.
+                        //                        if (hasNamNumber) {
+                        //                            resultSets.push({ IndexName: "NamNumber", Results: getResults(namNumber, "NamNumber") });
+                        //                        }
+
+                        //                        if (hasRoomNumber) {
+                        //                            resultSets.push({ IndexName: "Room", Results: getResults(roomNumber, "Room") });
+                        //                        }
+
+                        //                        if (hasVlan) {
+                        //                            resultSets.push({ IndexName: "Vlan", Results: getResults(vlan, "Vlan") });
+                        //                        }
+
+                        //                        if (hasBuilding) {
+                        //                            resultSets.push({ IndexName: "Building", Results: getResults(building, "Building") });
+                        //                        }
+
+                        //                        if (hasDepartment) {
+                        //                            resultSets.push({ IndexName: "Department", Results: getResults(department, "Department") });
+                        //                        }
+                        //debugger;
+
+                        if (resultSets.length > 0) {
+                            var filteredResults = new Array(); // contains results to display.
+                            if (resultSets.length == 1) {
+                                // Don't need any filtering if there's only one result set.
+                                filteredResults = resultSets[0].Results;
+                            } else {
+                                // for each result set we have to look for (a) match(es).
+
+                                for (var i = 0; i < resultSets.length; (i == 0 ? i = i + 2 : i++)) {
+                                    var array1 = [];
+                                    var array2 = [];
+
+                                    if (i == 0) {
+                                        // This is the first trip thru the compare logic
+                                        array1 = resultSets[i].Results;
+                                        array2 = resultSets[i + 1].Results;
+                                    } else {
+                                        // This is the second or third trip thru the compare logic.
+                                        array1 = resultSets[i].Results;
+                                        array2 = filteredResults.slice();
+                                        filteredResults = new Array();
+                                    }
+
+                                    for (var j = 0; j < array1.length; j++) {
+                                        var namToCompareTo = array1[j].Nam;
+                                        if (isInArray(namToCompareTo, array2)) {
+                                            //debugger;
+                                            filteredResults.push({ Id: namToCompareTo.id, Nam: namToCompareTo });
+                                        }
+                                    }
+                                }
+
+                            }
+                            $.each(filteredResults, function (ii, val) {
+                                //debugger;
+                                renderNam(val, output);
+
+                            });
+
+                        } // end if (results.length > 0)
+
+                        // else no results were returned from index queries.
+
+                    } // end !hasSearchParameters
+
+                }, false);
+
+            };
+
+            window.addEventListener("DOMContentLoaded", contentLoaded, false);
+
+        })();
+    </script>
+}
+<h2>@ViewBag.Message</h2>
+<hr />
+<br />
+<input type="button" id="btnPrint" value="Print Local Db" />
+<br />
+<input type="button" id="btnLoadData" value="Reload data from database" />
+<br />
+<label for="txtNamNumber">
+    Nam Number:
+</label>
+<input type="text" id="txtNamNumber" name="txtNamNumber"></input>
+<input type="button" id="btnFindNam" value="Find Nam" />
+<br />
+<label for="txtRoomNumber">
+    Room Number:
+</label>
+<input type="text" id="txtRoomNumber" name="txtRoomNumber"></input>
+<br />
+<label for="vlanList">
+    Select a VLAN to search for:</label>
+<select name='vlanList' id='vlanList' size='1'>
+</select>
+<br />
+<label for="buildingList">
+    Select a Building to Search for:</label>
+<select name='buildingList' id='buildingList' size='1'>
+</select>
+<br />
+<label for="departmentList">
+    Select a Department to Search for:</label>
+<select name='departmentList' id='departmentList' size='1'>
+</select>
+<br />
+<input type="button" id="btnFindNams" value="Find Nam(s)" />
+<ul>
+    <div id="output" />
+</ul>

@@ -15,6 +15,8 @@ namespace TPS.Core.Domain
 
         public virtual string Department { get; set; }
 
+        public virtual string DepartmentNumber { get; set; }
+
         //public virtual string CaanZone { get; set; }
 
         public virtual string BillingId { get; set; }
