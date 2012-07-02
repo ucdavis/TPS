@@ -5,7 +5,7 @@
 {
     <script type="text/javascript" language="javascript">
         var db;
-        var id = "723N";
+
         (function () {
 
             // load the global arrays from local storage or from the remote database if the local storage is empty
@@ -17,7 +17,7 @@
 
                 }
                 else {
-                    debugger;
+                    //debugger;
 
                     var items = db.getItem("dataNams");
 
@@ -133,7 +133,7 @@
                         window.namData.push(myObj);
                     });
                 });
-                debugger;
+                //debugger;
                 db.setItem("dataNams", JSON.stringify(window.namData));
                 //alert("Loaded " + window.namData.length + " Nams.");
 
@@ -192,16 +192,17 @@
                 //load multi-param select lists
                 loadDropdownWitName($('select#selectVlan').get(0), selectArray, "Vlan");
                 loadDropdownWitName($('select#selectBuilding').get(0), window.buildingData, "Building");
+
                 loadDropdownWitName($('select#selectDepartment').get(0), window.departmentData, "Department");
             }
 
             // This method uses an index cursor to get a sorted list of index values
             // with which to build the select list options.
             function loadDropdownWitName(selectList, selectArray, labelName) {
-                debugger;
+                //debugger;
                 $(selectList).empty();
                 $(selectList).append($('<option selected="selected">-- Select a ' + labelName + ' --</option>').val(""));
-                $("selectList option[value='']").attr("selected", true);
+                $("selectList option[value='']").attr("selected", "selected");
 
                 for (var s = 0; s < selectArray.length; s++) {
                     //debugger;
@@ -210,7 +211,6 @@
 
                     $(selectList).append($('<option></option>').val(id).html(item[labelName]));
                 }
-
             };
 
             // Output an item from local storage to the web page,
@@ -513,7 +513,7 @@
                     var hasBuilding = ($.trim(building) != "" ? true : false);
                     var hasDepartment = ($.trim(department) != "" ? true : false);
                     var hasVlan = ($.trim(vlan) != "" ? true : false);
-                    debugger;
+                    //debugger;
                     // Add a search parameter for any param that "has..." equals true:
                     if (hasNamNumber) {
                         searchParams.push({
@@ -628,7 +628,7 @@
 
                     if (department != "") {
 
-                        var departments = findNam(department, "Department");
+                        var departments = findNam(department, "DepartmentNumber");
                         for (var b = 0; b < departments.length; b++) {
                             renderNam(departments[b], output);
                         }
