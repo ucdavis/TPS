@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Mvc;
 using TPS.Core.Domain;
 using TPS.Web.Helpers;
@@ -176,6 +177,43 @@ namespace TPS.Web.Controllers
             ViewBag.Message = "Global Array Test";
 
             return View();
+        }
+
+        public ActionResult DnsTest(string txtDomain)
+        {
+            ViewBag.Message = "DNS Query Test";
+            if (string.IsNullOrEmpty(txtDomain)) txtDomain = "";
+            txtDomain = txtDomain.Trim();
+            var viewModel = new DnsTestModel()
+                                {
+                                    Addresses = new List<string>(),
+                                    Aliases = new List<string>(),
+                                    ExceptionMessage = ""
+                                };
+
+            try
+            {
+                IPHostEntry objIpHostEntry = System.Net.Dns.GetHostEntry(txtDomain);
+
+                viewModel.HostName = objIpHostEntry.HostName;
+
+                int i;
+                for (i = 0; i < objIpHostEntry.AddressList.Length; i++)
+                {
+                    viewModel.Addresses.Add(objIpHostEntry.AddressList[i].ToString());
+                }
+
+                for (i = 0; i < objIpHostEntry.Aliases.Length; i++)
+                {
+                    viewModel.Aliases.Add(objIpHostEntry.Aliases[i]);
+                }
+            }
+            catch (Exception ex)
+            {
+                viewModel.ExceptionMessage = ex.Message;
+            }
+
+            return View(viewModel);
         }
     }
 }

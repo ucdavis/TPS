@@ -144,6 +144,8 @@
                 loadDropdownWitName($('select#vlanList').get(0), selectArray, "Vlan");
 
                 selectArray = window.buildingData;
+                alert("Type of buildingData: " + typeof selectArray);
+
                 while (typeof selectArray == "undefined") {
                     selectArray = window.buildingData;
                 }
@@ -411,7 +413,15 @@
 
                     var buildingCap = window.buildingData.length;
                     var vlanCap = window.vlanData.length;
+
+                    var namArray = window.namData;
+                    while (typeof namArray == "undefined" || namArray == null) {
+
+                        namArray = window.namData;
+                    }
+                    //alert("NAM array is now loaded.");
                     var namCap = window.namData.length;
+
                     var deptartmentCap = window.departmentData.length;
 
                     appendToList("Nam array capacity: ", namCap, output);
@@ -512,6 +522,7 @@
                 }, false);
 
                 btnGetNams.addEventListener("click", function () {
+                    //debugger;
                     var resultSet = new Array();
 
                     // Find and clear the output element:
@@ -519,19 +530,19 @@
                     var output = $("#matches")[0];
                     output.innerHTML = "";
 
-                    var namNumber = $('#txtNamNumber').val();
-                    var roomNumber = $('#txtRoomNumber').val();
+                    var namNumber = escape($('#txtNamNumber').val());
+                    var roomNumber = escape($('#txtRoomNumber').val());
                     var building = "";
                     $('select#selectBuilding option:selected').each(function () {
-                        building = $(this).val();
+                        building = escape($(this).val());
                     });
                     var departmentNumber = "";
                     $('select#selectDepartment option:selected').each(function () {
-                        departmentNumber = $(this).val();
+                        departmentNumber = escape($(this).val());
                     });
                     var vlan = "";
                     $('select#selectVlan option:selected').each(function () {
-                        vlan = $(this).val();
+                        vlan = escape($(this).val());
                     });
 
                     $.getJSON("../api/nams/?namNumber=" + namNumber + "&roomNumber=" + roomNumber + "&vlan=" + vlan + "&building=" + building + "&departmentNumber=" + departmentNumber, function (data) {

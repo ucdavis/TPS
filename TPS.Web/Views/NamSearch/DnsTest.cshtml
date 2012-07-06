@@ -1,0 +1,64 @@
+﻿@model TPS.Web.Models.DnsTestModel
+@{
+    ViewBag.Title = "DnsTest";
+}
+<h2>
+    DnsTest</h2>
+@section AdditionalScripts
+{
+    <script type="text/javascript" language="javascript">
+        (function () {
+            function contentLoaded() {
+
+            };
+            window.addEventListener("DOMContentLoaded", contentLoaded, false);
+
+        })();
+    </script>
+}
+<h2>
+    Search for DNS information either by Host Name* or IP Address</h2>
+<h4>
+    <i>*Note that some entries such as "mail", etc. require a fully qualified domain name.</i></h4>
+<fieldset>
+    @using (Html.BeginForm("DnsTest", "NamSearch", FormMethod.Get))
+    {
+        <label style="font-family: Verdana, Arial, Helvetica, sans-serif; color: #009900;">
+            Enter:
+        </label>
+        <font color="#009900">
+            <input type="text" id="txtDomain" name="txtDomain" />
+            <input type="submit" id="btnFindDns" value="Submit!" />
+        </font>
+        <br />
+        <label style="font-family: Verdana, Arial, Helvetica, sans-serif; color: Red;">
+            @Model.ExceptionMessage
+        </label>
+        <br />
+        <p />
+        <label style="font-family: Verdana, Arial, Helvetica, sans-serif; color: #009900;">
+            Primary host name for the server:</label><br />
+        @Model.HostName
+        <br />
+        <p />
+
+        <label style="font-family: Verdana, Arial, Helvetica, sans-serif; color: #009900;">
+            IP Addresses:</label><br />
+
+        <ul>
+            @foreach (var address in @Model.Addresses)
+            {
+                <li>@address</li>;
+            }
+        </ul>
+        <p />
+        <label style="font-family: Verdana, Arial, Helvetica, sans-serif; color: #009900;">
+            Aliases:</label><br />
+        <ul>
+            @foreach (var alias in @Model.Aliases)
+            {
+                <li>@alias</li>
+            }
+        </ul>
+    }
+</fieldset>
